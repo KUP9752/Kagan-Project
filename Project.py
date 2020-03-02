@@ -113,8 +113,84 @@ def set_level_colour(num):
 def reset_level_colour(num):
     level_buttons[num].colour = ORANGE
         
+def level_selector(num):
+    if num == 1:
+        level_()
+    elif num == 2:
+        leve2_()
+    elif num == 3:
+        leve3_()
+    elif num ==4:
+        leve4_()
+    elif num ==5:
+        leve5_()
+    elif num ==6:
+        leve6_()
+    elif num ==7:
+        leve7_()
+    elif num ==8:
+        leve8_()
+    elif num ==9:
+        leve9_()
+    elif num == 10:
+        level0_()
         
+def level_clear():
+    all_sprites_group.empty()
+        
+def level_1():
+    print('level 1')
 
+
+
+
+    
+def level_2():
+    print('level 2')
+
+
+
+
+    
+def level_3():
+    print('level 3')
+
+
+
+
+    
+def level_4():
+    print('level 4')
+
+
+    
+def level_5():
+    print('level 5')
+
+
+    
+def level_6():
+    print('level 6')
+
+
+    
+def level_7():
+    print('level 7')
+
+
+    
+def level_8():
+    print('level 8')
+
+
+    
+def level_9():
+    print('level 9')
+
+
+    
+def level_10():
+    print('level 10')
 
 
 
@@ -143,11 +219,15 @@ playbutton = Button(RED, 540,300,200,100,PLAYfont,'PLAY')
 ##---------------------------------------------------------------------Variables---------------------------------------------------------------------##
 game_over = False
 play_game = False
+
 level_buttons = []
 level_x_places=[190,390,590,790,990,190,390,590,790,990]
 level_y_places=[260,260,260,260,260,460,460,460,460,460]
 level_numbers = ['1','2','3','4','5','6','7','8','9','10']
 level_running = False
+
+# -- current_level //used later to determine which level is running
+
 ##                                                                                       _________             
 ##______________________________________________________________________________________/GAME LOOP\_____________________________________________________________________________________________________##
 while not game_over:
@@ -171,13 +251,18 @@ while not game_over:
                 playbutton.colour =RED
             for counter in range(0,10):
                 if play_game and level_buttons[counter].isOver(mouse_pos):
-                    set_level_colour(counter)
+                    set_level_colour(counter) #-calls procedure to change button hover colour
                 elif play_game:
-                    reset_level_colour(counter)
-        if play_game and event.type == pygame.MOUSEBUTTONDOWN:
+                    reset_level_colour(counter) #-calls procedure that can revert the coour
+        if play_game and event.type == pygame.MOUSEBUTTONDOWN:  #checks if a level is clicked
             for counter in range(0,10):
                 if level_buttons[counter].isOver(mouse_pos):
-                    print(level_numbers[counter], 'clicked')
+                    current_level =level_numbers[counter]
+                    print(current_level, 'clicked')
+                    level_running = True
+                    level_selector(current_level)
+                    
+ 
 
             
                     
@@ -186,16 +271,18 @@ while not game_over:
     
    
 
-    #level_button = Button(ORANGE, 240,300,200,100,PLAYfont,'LEVELS')
+    
     screen.fill(BLACK)        
     cursor_group.update()
     cursor_group.draw(screen)
-    if not level_running:
-        if not play_game:
+    
+    if not level_running:   #-wether a level is running
+        if not play_game:   #-nothing runnnig displays title screen
             playbutton.draw(screen)
-        if play_game:
+        if play_game:       #-play pressed into level screen
             for counter in range(0,10):
                 level_buttons[counter].draw(screen)
+
         
         
         

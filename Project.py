@@ -31,7 +31,7 @@ clock = pygame.time.Clock()
 
 # -- Blank Screen
 
-size = (1000,1000)
+size = (1280, 720)
 screen = pygame.display.set_mode(size)
 screen.fill(BLACK)
 
@@ -40,6 +40,24 @@ pygame.display.set_caption("GAME")
 
 
 ## ---------------------------------------------------------------------Classes-----------------------------------------------------------------------##
+class Player(pygame.sprite.Sprite):
+    def __init__(self,colour,x,y):
+        super().__init__
+        self.colour = colour
+        self.image = pygame.Surface([10,10])
+        self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
+        self.rect.x = x 
+        self.rect.y = y
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, level, speed, x, y):
+        super().__init__
+        self.colour = BLUE
+        self.image = pygame.Surface([10,10])
+        self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 class Cursor(pygame.sprite.Sprite):
     def __init__(self, colour, x, y):
         super().__init__()
@@ -57,17 +75,7 @@ class Cursor(pygame.sprite.Sprite):
 
         #cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
         
-class Text(pygame.sprite.Sprite):
-    def __init__(self, text, size, color, width, height):
-        # Call the parent class (Sprite) constructor  
-        pygame.sprite.Sprite.__init__(self)
 
-        self.font = pygame.font.SysFont("Arial", size)
-        self.textSurf = self.font.render(text, 1, color)
-        self.image = pygame.Surface((width, height))
-        W = self.textSurf.get_width()
-        H = self.textSurf.get_height()
-        self.image.blit(self.textSurf, [width/2 - W/2, height/2 - H/2])
         
 class Button():
     def __init__(self, colour, x,  y,width,height,font, text=''):
@@ -97,6 +105,22 @@ class Button():
                 return True
             
         return False
+##---------------------------------------------------------------------Screens---------------------------------------------------------------------##
+    
+            
+def level_screen():
+    for x 
+    
+
+
+
+
+
+
+
+
+
+    
 ##---------------------------------------------------------------------Sprite groups and Sprite Initiation---------------------------------------------------------------------##
 all_sprites_group = pygame.sprite.Group()
 
@@ -107,7 +131,7 @@ cursor = Cursor(WHITE, 500, 500)
 cursor_group.add(cursor)
     
 
-playbutton = Button(RED,200,200,200,200,PLAYfont,'PLAY')
+playbutton = Button(RED, 540,300,200,100,PLAYfont,'PLAY')
 ##button_group = pygame.sprite.Group()
 ##button_group.add(playbutton)
 
@@ -115,29 +139,43 @@ playbutton = Button(RED,200,200,200,200,PLAYfont,'PLAY')
 
 ##---------------------------------------------------------------------Variables---------------------------------------------------------------------##
 game_over = False
-
+play_game = False
+level_x_places[140,340,540,740,940,140,340,540,740,940]
+levl_y_places[260,260,260,260,260,460,460,460,460,460]
 ##                                                                                       _________             
 ##______________________________________________________________________________________/GAME LOOP\_____________________________________________________________________________________________________##
 while not game_over:
     
     for event in pygame.event.get():
         mouse_pos = pygame.mouse.get_pos()
+        
         if event.type == pygame.QUIT:
-            game_over = True
-            
+            game_over = True       
         if event.type == pygame.MOUSEBUTTONDOWN:
             if playbutton.isOver(mouse_pos):
                 print("button clicked")
+                play_game= True
+                levels_screen()
         if event.type == pygame.MOUSEMOTION:
             if playbutton.isOver(mouse_pos):
                 playbutton.colour = GREEN
             else:
                 playbutton.colour =RED
     
+     
+    
+   
+
+    #level_button = Button(ORANGE, 240,300,200,100,PLAYfont,'LEVELS')
     screen.fill(BLACK)        
     cursor_group.update()
     cursor_group.draw(screen)
-    playbutton.draw(screen)
+    
+    if not play_game:
+        playbutton.draw(screen)
+    if play_game:
+        
+        
         
 
 ##---------------------------------------------------------------------Draw here---------------------------------------------------------------------##

@@ -108,9 +108,12 @@ class Button():
 ##---------------------------------------------------------------------Screens---------------------------------------------------------------------##
     
             
-def level_screen():
-    for x 
-    
+def set_level_colour(num):
+    level_buttons[num].colour = YELLOW
+def reset_level_colour(num):
+    level_buttons[num].colour = ORANGE
+        
+        
 
 
 
@@ -140,8 +143,11 @@ playbutton = Button(RED, 540,300,200,100,PLAYfont,'PLAY')
 ##---------------------------------------------------------------------Variables---------------------------------------------------------------------##
 game_over = False
 play_game = False
-level_x_places[140,340,540,740,940,140,340,540,740,940]
-levl_y_places[260,260,260,260,260,460,460,460,460,460]
+level_buttons = []
+level_x_places=[190,390,590,790,990,190,390,590,790,990]
+level_y_places=[260,260,260,260,260,460,460,460,460,460]
+level_numbers = ['1','2','3','4','5','6','7','8','9','10']
+level_running = False
 ##                                                                                       _________             
 ##______________________________________________________________________________________/GAME LOOP\_____________________________________________________________________________________________________##
 while not game_over:
@@ -151,16 +157,30 @@ while not game_over:
         
         if event.type == pygame.QUIT:
             game_over = True       
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if not(play_game) and event.type == pygame.MOUSEBUTTONDOWN:
             if playbutton.isOver(mouse_pos):
                 print("button clicked")
                 play_game= True
-                levels_screen()
+                for counter in range(0,10):
+                    level_button = Button(ORANGE,level_x_places[counter], level_y_places[counter],100,100,PLAYfont,level_numbers[counter])
+                    level_buttons.append(level_button)
         if event.type == pygame.MOUSEMOTION:
             if playbutton.isOver(mouse_pos):
                 playbutton.colour = GREEN
             else:
                 playbutton.colour =RED
+            for counter in range(0,10):
+                if play_game and level_buttons[counter].isOver(mouse_pos):
+                    set_level_colour(counter)
+                elif play_game:
+                    reset_level_colour(counter)
+        if play_game and event.type == pygame.MOUSEBUTTONDOWN:
+            for counter in range(0,10):
+                if level_buttons[counter].isOver(mouse_pos):
+                    print(level_numbers[counter], 'clicked')
+
+            
+                    
     
      
     
@@ -170,10 +190,12 @@ while not game_over:
     screen.fill(BLACK)        
     cursor_group.update()
     cursor_group.draw(screen)
-    
-    if not play_game:
-        playbutton.draw(screen)
-    if play_game:
+    if not level_running:
+        if not play_game:
+            playbutton.draw(screen)
+        if play_game:
+            for counter in range(0,10):
+                level_buttons[counter].draw(screen)
         
         
         

@@ -205,9 +205,9 @@ all_sprites_group = pygame.sprite.Group()
 
     
 ##  --  Button/Cursor Sprites and Groups --  ##
-cursor_group = pygame.sprite.Group()
-cursor = Cursor(WHITE, 500, 500)
-cursor_group.add(cursor)
+##cursor_group = pygame.sprite.Group()
+##cursor = Cursor(WHITE, 500, 500)
+##cursor_group.add(cursor)
     
 
 playbutton = Button(RED, 540,300,200,100,PLAYfont,'PLAY')
@@ -273,8 +273,8 @@ while not game_over:
 
     
     screen.fill(BLACK)        
-    cursor_group.update()
-    cursor_group.draw(screen)
+##    cursor_group.update()
+##    cursor_group.draw(screen)
     
     if not level_running:   #-wether a level is running
         if not play_game:   #-nothing runnnig displays title screen

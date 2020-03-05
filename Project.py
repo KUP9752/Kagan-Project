@@ -58,23 +58,24 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-class Cursor(pygame.sprite.Sprite):
-    def __init__(self, colour, x, y):
-        super().__init__()
-        self.colour = colour
-        self.image= pygame.Surface([6,6])
-        self.image.fill(self.colour)
-        self.rect = self.image.get_rect()
-        self.rect.x = x -2
-        self.rect.y = y -2
-
-    def update(self):
-        mouse_pos = pygame.mouse.get_pos()
-        self.rect.x = mouse_pos[0] -2
-        self.rect.y = mouse_pos[1] -2
-
-        #cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
         
+##class Cursor(pygame.sprite.Sprite):
+##    def __init__(self, colour, x, y):
+##        super().__init__()
+##        self.colour = colour
+##        self.image= pygame.Surface([6,6])
+##        self.image.fill(self.colour)
+##        self.rect = self.image.get_rect()
+##        self.rect.x = x -2
+##        self.rect.y = y -2
+##
+##    def update(self):
+##        mouse_pos = pygame.mouse.get_pos()
+##        self.rect.x = mouse_pos[0] -2
+##        self.rect.y = mouse_pos[1] -2
+##
+##        #cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
+##        
 
         
 class Button():
@@ -137,7 +138,9 @@ def level_selector(num):
         
 def level_clear():
     all_sprites_group.empty()
-        
+
+def map_creator():
+    
 def level_1():
     print('level 1')
 

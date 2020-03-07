@@ -139,7 +139,7 @@ def level_selector(num):
 def level_clear():
     all_sprites_group.empty()
 
-def map_creator():
+#def map_creator():
     
 def level_1():
     print('level 1')

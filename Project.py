@@ -49,6 +49,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x 
         self.rect.y = y
+        
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, level, speed, x, y):
         super().__init__
@@ -58,6 +59,12 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+class Exit(pygame.sprite.Sprite):
+    def __inti__(self, state):
+        super().__init__
+        self.state = state
+        
         
 ##class Cursor(pygame.sprite.Sprite):
 ##    def __init__(self, colour, x, y):
@@ -115,36 +122,68 @@ def reset_level_colour(num):
     level_buttons[num].colour = ORANGE
         
 def level_selector(num):
+    num = int(num)
     if num == 1:
-        level_()
+        level_l()
     elif num == 2:
-        leve2_()
+        level_2()
     elif num == 3:
-        leve3_()
+        level_3()
     elif num ==4:
-        leve4_()
+        level_4()
     elif num ==5:
-        leve5_()
+        level_5()
     elif num ==6:
-        leve6_()
+        level_6()
     elif num ==7:
-        leve7_()
+        level_7()
     elif num ==8:
-        leve8_()
+        level_8()
     elif num ==9:
-        leve9_()
+        level_9()
     elif num == 10:
-        level0_()
+        level_l0()
         
 def level_clear():
     all_sprites_group.empty()
 
-#def map_creator():
+def map_creator(layout):
+    for y in range(len(layout)):
+        for x in range(len(layout[y])):
+            if layout[y][x] == 1:
+                #places obstacle
+            if layout[y][x] == 2:
+                #player spawn
+            if layout[y][x] == 3:
+                #spawn enemy type 1
+            if layout[y][x] == 4:
+                #spawn enemy type 2
+            if layout[y][x] == 5:
+                #spawn enemy type 3
+            if layout[y][x] == 6:
+                #exit tiles
+            if layout[y][x] == 7:
+                #key location
+            if layout[y][x] == 8:
+                #enemy obstacle position
+            if layout[y][x] == 9 :
+                #enemy obstacle UP
+            if layout[y][x] == 10:
+                #enemy obstacle DOWN
+            if layout[y][x] == 11:
+                #enemy obstacle RIGHT
+            if layout[y][x] == 12:
+                #enemy obstacle LEFT
+                
+    
     
 def level_1():
     print('level 1')
-
-
+    level_1_file = open('levels/level1.json','rt')
+    layout_1 = json.load(level_1_file)
+    level_1_file.close()
+    map_creator(layout_1)
+    
 
 
     
@@ -229,6 +268,8 @@ level_y_places=[260,260,260,260,260,460,460,460,460,460]
 level_numbers = ['1','2','3','4','5','6','7','8','9','10']
 level_running = False
 
+end_level = False
+
 # -- current_level //used later to determine which level is running
 
 ##                                                                                       _________             
@@ -279,13 +320,18 @@ while not game_over:
 ##    cursor_group.update()
 ##    cursor_group.draw(screen)
     
-    if not level_running:   #-wether a level is running
+    if not level_running:   #-whether a level is running
         if not play_game:   #-nothing runnnig displays title screen
             playbutton.draw(screen)
         if play_game:       #-play pressed into level screen
             for counter in range(0,10):
                 level_buttons[counter].draw(screen)
-
+    elif level_running:
+        #all logic on displaying live sprites
+        if end_level:
+            end_level = False
+            level_clear()   #clears the all sprites group
+        
         
         
         

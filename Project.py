@@ -42,17 +42,19 @@ pygame.display.set_caption("GAME")
 ## ---------------------------------------------------------------------Classes-----------------------------------------------------------------------##
 class Player(pygame.sprite.Sprite):
     def __init__(self,colour,x,y):
-        super().__init__
+        super().__init__()
         self.colour = colour
         self.image = pygame.Surface([10,10])
         self.image.fill(self.colour)
         self.rect = self.image.get_rect()
         self.rect.x = x 
         self.rect.y = y
+  #  def update(self):
+    
         
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, level, speed, x, y):
-        super().__init__
+        super().__init__()
         self.colour = BLUE
         self.image = pygame.Surface([10,10])
         self.image.fill(self.colour)
@@ -62,7 +64,7 @@ class Enemy(pygame.sprite.Sprite):
 
 class Exit(pygame.sprite.Sprite):
     def __inti__(self, state):
-        super().__init__
+        super().__init__()
         self.state = state
         
         
@@ -147,33 +149,33 @@ def level_selector(num):
 def level_clear():
     all_sprites_group.empty()
 
-def map_creator(layout):
-    for y in range(len(layout)):
-        for x in range(len(layout[y])):
-            if layout[y][x] == 1:
-                #places obstacle
-            if layout[y][x] == 2:
-                #player spawn
-            if layout[y][x] == 3:
-                #spawn enemy type 1
-            if layout[y][x] == 4:
-                #spawn enemy type 2
-            if layout[y][x] == 5:
-                #spawn enemy type 3
-            if layout[y][x] == 6:
-                #exit tiles
-            if layout[y][x] == 7:
-                #key location
-            if layout[y][x] == 8:
-                #enemy obstacle position
-            if layout[y][x] == 9 :
-                #enemy obstacle UP
-            if layout[y][x] == 10:
-                #enemy obstacle DOWN
-            if layout[y][x] == 11:
-                #enemy obstacle RIGHT
-            if layout[y][x] == 12:
-                #enemy obstacle LEFT
+##def map_creator(layout):
+##    for y in range(len(layout)):
+##        for x in range(len(layout[y])):
+##            if layout[y][x] == 1:
+##                #places obstacle
+##            if layout[y][x] == 2:
+##                #player spawn
+##            if layout[y][x] == 3:
+##                #spawn enemy type 1
+##            if layout[y][x] == 4:
+##                #spawn enemy type 2
+##            if layout[y][x] == 5:
+##                #spawn enemy type 3
+##            if layout[y][x] == 6:
+##                #exit tiles
+##            if layout[y][x] == 7:
+##                #key location
+##            if layout[y][x] == 8:
+##                #enemy obstacle position
+##            if layout[y][x] == 9 :
+##                #enemy obstacle UP
+##            if layout[y][x] == 10:
+##                #enemy obstacle DOWN
+##            if layout[y][x] == 11:
+##                #enemy obstacle RIGHT
+##            if layout[y][x] == 12:
+##                #enemy obstacle LEFT
                 
     
     
@@ -244,6 +246,9 @@ def level_10():
     
 ##---------------------------------------------------------------------Sprite groups and Sprite Initiation---------------------------------------------------------------------##
 all_sprites_group = pygame.sprite.Group()
+player_group = pygame.sprite.Group()
+
+
 
     
 ##  --  Button/Cursor Sprites and Groups --  ##
@@ -306,8 +311,20 @@ while not game_over:
                     level_running = True
                     level_selector(current_level)
                     
- 
-
+        keys = pygame.key.get_pressed()
+        if len(player_group)>0:
+            if keys[pygame.K_w]:
+                #player moves up
+                player.rect.y -=10      #-ve in y direction is upwards
+            elif keys[pygame.K_s]:
+                #player moves down
+                player.rect.y +=10
+            elif keys[pygame.K_d]:
+                #player moves right
+                player.rect.x +=10
+            elif keys[pygame.K_a]:
+                #player moves left
+                player.rect.x -=10
             
                     
     
@@ -327,7 +344,10 @@ while not game_over:
             for counter in range(0,10):
                 level_buttons[counter].draw(screen)
     elif level_running:
-        #all logic on displaying live sprites
+        player = Player(BLUE, 500, 500)
+        player_group.add(player)
+        player_group.draw(screen)
+        
         if end_level:
             end_level = False
             level_clear()   #clears the all sprites group

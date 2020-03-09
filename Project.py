@@ -43,13 +43,26 @@ pygame.display.set_caption("GAME")
 class Player(pygame.sprite.Sprite):
     def __init__(self,colour,x,y):
         super().__init__()
+        self.speed =10
+        self.direction_x =0
+        self.direction_y =0
         self.colour = colour
         self.image = pygame.Surface([10,10])
         self.image.fill(self.colour)
         self.rect = self.image.get_rect()
         self.rect.x = x 
         self.rect.y = y
-  #  def update(self):
+
+    def set_direction_x(self,value):
+        self.direction_x = value
+
+    def set_direction_y(self,value):
+        self.direction_y = value
+        
+    def update(self):
+        if (self.rect.x>0 and self.rect.x<1260) and (self.rect.y >0 and self.rect.y<700):
+            self.rect.x = self.rect.x + self.direction_x*self.speed
+            self.rect.y = self.rect.y + self.direction_y*self.speed
     
         
 class Enemy(pygame.sprite.Sprite):
@@ -126,7 +139,7 @@ def reset_level_colour(num):
 def level_selector(num):
     num = int(num)
     if num == 1:
-        level_l()
+        level_1()
     elif num == 2:
         level_2()
     elif num == 3:
@@ -181,8 +194,8 @@ def level_clear():
     
 def level_1():
     print('level 1')
-
-    
+    #player = Player(BLUE, 500, 500)
+    player_group.add(player)
 
 
     
@@ -248,7 +261,7 @@ def level_10():
 all_sprites_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 
-
+player = Player(BLUE, 100, 100)
 
     
 ##  --  Button/Cursor Sprites and Groups --  ##
@@ -257,7 +270,7 @@ player_group = pygame.sprite.Group()
 ##cursor_group.add(cursor)
     
 
-playbutton = Button(RED, 540,300,200,100,PLAYfont,'PLAY')
+playbutton = Button(RED, 540,150,200,100,PLAYfont,'PLAY')
 ##button_group = pygame.sprite.Group()
 ##button_group.add(playbutton)
 
@@ -285,7 +298,21 @@ while not game_over:
         mouse_pos = pygame.mouse.get_pos()
         
         if event.type == pygame.QUIT:
-            game_over = True       
+            game_over = True
+        elif level_running and len(player_group)>0:
+            if event.type ==pygame.KEYDOWN:
+                if event.key ==pygame.K_w:
+                    player.set_direction_y(-1)
+                elif event.key == pygame.K_s:
+                    player.set_direction_y(1)
+                elif event.key == pygame.K_d:
+                    player.set_direction_x(1)
+                elif event.key == pygame.K_a:
+                    player.set_direction_x(-1)
+            elif event.type == pygame.KEYUP:
+                player.set_direction_x(0)
+                player.set_direction_y(0)
+                
         if not(play_game) and event.type == pygame.MOUSEBUTTONDOWN:
             if playbutton.isOver(mouse_pos):
                 print("button clicked")
@@ -311,20 +338,8 @@ while not game_over:
                     level_running = True
                     level_selector(current_level)
                     
-        keys = pygame.key.get_pressed()
-        if len(player_group)>0:
-            if keys[pygame.K_w]:
-                #player moves up
-                player.rect.y -=10      #-ve in y direction is upwards
-            elif keys[pygame.K_s]:
-                #player moves down
-                player.rect.y +=10
-            elif keys[pygame.K_d]:
-                #player moves right
-                player.rect.x +=10
-            elif keys[pygame.K_a]:
-                #player moves left
-                player.rect.x -=10
+        
+
             
                     
     
@@ -344,9 +359,10 @@ while not game_over:
             for counter in range(0,10):
                 level_buttons[counter].draw(screen)
     elif level_running:
-        player = Player(BLUE, 500, 500)
-        player_group.add(player)
+        
+        
         player_group.draw(screen)
+        player_group.update()
         
         if end_level:
             end_level = False
@@ -358,27 +374,6 @@ while not game_over:
 
 ##---------------------------------------------------------------------Draw here---------------------------------------------------------------------##
             
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

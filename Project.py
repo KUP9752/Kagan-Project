@@ -179,10 +179,7 @@ def map_creator(layout):
     
 def level_1():
     print('level 1')
-    level_1_file = open('levels/level1.json','rt')
-    layout_1 = json.load(level_1_file)
-    level_1_file.close()
-    map_creator(layout_1)
+
     
 
 
@@ -196,7 +193,10 @@ def level_2():
     
 def level_3():
     print('level 3')
-
+    level_3_file = open('levels/level3.json','rt')
+    layout_3 = json.load(level_3_file)
+    level_3_file.close()
+    map_creator(layout_3)
 
 
 

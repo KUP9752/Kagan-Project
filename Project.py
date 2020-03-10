@@ -194,7 +194,7 @@ def level_clear():
     
 def level_1():
     print('level 1')
-    #player = Player(BLUE, 500, 500)
+    player = Player(BLUE, 500, 500)
     player_group.add(player)
 
 
@@ -249,8 +249,7 @@ def level_9():
 def level_10():
     print('level 10')
 
-
-
+    
 
 
 
@@ -261,8 +260,8 @@ def level_10():
 all_sprites_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 
-player = Player(BLUE, 100, 100)
 
+player = Player(BLUE, 200, 200)
     
 ##  --  Button/Cursor Sprites and Groups --  ##
 ##cursor_group = pygame.sprite.Group()

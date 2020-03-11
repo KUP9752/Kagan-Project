@@ -50,7 +50,7 @@ class Player(pygame.sprite.Sprite):
         self.direction_x =0
         self.direction_y =0
         self.colour = colour
-        self.image = pygame.Surface([10,10])
+        self.image = pygame.Surface([20,20])
         self.image.fill(self.colour)
         self.rect = self.image.get_rect()
         self.rect.x = x 
@@ -63,16 +63,26 @@ class Player(pygame.sprite.Sprite):
         self.direction_y = value
         
     def update(self):
-        if (self.rect.x>0 and self.rect.x<1260) and (self.rect.y >0 and self.rect.y<700):
+        #------Level border collision logic
+        if (self.rect.x>=0 and self.rect.x<=980) and (self.rect.y >=0 and self.rect.y<=700):
             self.rect.x = self.rect.x + self.direction_x*self.speed
             self.rect.y = self.rect.y + self.direction_y*self.speed
+        if self.rect.x < 0:
+            self.rect.x = 0
+        if self.rect.x >980:
+            self.rect.x = 980
+        if self.rect.y <0:
+            self.rect.y =0
+        if self.rect.y > 700:
+            self.rect.y =700
+        #-------Level border collision logic
     
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, level, speed, x, y):
         super().__init__()
         self.colour = BLUE
-        self.image = pygame.Surface([10,10])
+        self.image = pygame.Surface([20,20])
         self.image.fill(self.colour)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -81,7 +91,7 @@ class Enemy(pygame.sprite.Sprite):
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, x, y):
         self.colour = BROWN
-        self.image = pygame.Surface([10,10]
+        self.image = pygame.Surface([10,10])
         self.image.fill(self.colour)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -108,7 +118,7 @@ class Exit(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.state = 0      #exit closed = default
+        self.state = 0      #exit closed by default
         
     def state_change(self,state):
         self.state = state
@@ -116,24 +126,6 @@ class Exit(pygame.sprite.Sprite):
         #state = 1 -> exit is open
         
         
-##class Cursor(pygame.sprite.Sprite):
-##    def __init__(self, colour, x, y):
-##        super().__init__()
-##        self.colour = colour
-##        self.image= pygame.Surface([6,6])
-##        self.image.fill(self.colour)
-##        self.rect = self.image.get_rect()
-##        self.rect.x = x -2
-##        self.rect.y = y -2
-##
-##    def update(self):
-##        mouse_pos = pygame.mouse.get_pos()
-##        self.rect.x = mouse_pos[0] -2
-##        self.rect.y = mouse_pos[1] -2
-##
-##        #cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
-##        
-
         
 class Button():
     def __init__(self, colour, x,  y,width,height,font, text=''):
@@ -163,6 +155,26 @@ class Button():
                 return True
             
         return False
+
+    
+    ##class Cursor(pygame.sprite.Sprite):
+##    def __init__(self, colour, x, y):
+##        super().__init__()
+##        self.colour = colour
+##        self.image= pygame.Surface([6,6])
+##        self.image.fill(self.colour)
+##        self.rect = self.image.get_rect()
+##        self.rect.x = x -2
+##        self.rect.y = y -2
+##
+##    def update(self):
+##        mouse_pos = pygame.mouse.get_pos()
+##        self.rect.x = mouse_pos[0] -2
+##        self.rect.y = mouse_pos[1] -2
+##
+##        #cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
+##
+
     
 ##---------------------------------------------------------------------Functions/Procedures---------------------------------------------------------------------##
     
@@ -197,38 +209,38 @@ def level_selector(num):
         
 def level_clear():
     all_sprites_group.empty()
-
-def map_creator(layout):
-    for y in range(len(layout)):
-        for x in range(len(layout[y])):
-            if layout[y][x] == 1:
-                #places obstacle
-                obstacle = Obstacle(x*10,y*10)
-                obstacle_group.add(obstacle)
-                all_sprites_group.add(obstacle)
-            if layout[y][x] == 2:
-                #player spawn
-                create_player(x*10,y*10)
-            if layout[y][x] == 3:
-                #spawn enemy type 1
-            if layout[y][x] == 4:
-                #spawn enemy type 2
-            if layout[y][x] == 5:
-                #spawn enemy type 3
-            if layout[y][x] == 6:
-                #exit tiles
-            if layout[y][x] == 7:
-                #key location
-            if layout[y][x] == 8:
-                #enemy obstacle position
-            if layout[y][x] == 9 :
-                #enemy obstacle UP
-            if layout[y][x] == 10:
-                #enemy obstacle DOWN
-            if layout[y][x] == 11:
-                #enemy obstacle RIGHT
-            if layout[y][x] == 12:
-                #enemy obstacle LEFT
+##
+##def map_creator(layout):
+##    for y in range(len(layout)):
+##        for x in range(len(layout[y])):
+##            if layout[y][x] == 1:
+##                #places obstacle
+##                obstacle = Obstacle(x*10,y*10)
+##                obstacle_group.add(obstacle)
+##                all_sprites_group.add(obstacle)
+##            if layout[y][x] == 2:
+##                #player spawn
+##                create_player(x*10,y*10)
+##            if layout[y][x] == 3:
+##                #spawn enemy type 1
+##            if layout[y][x] == 4:
+##                #spawn enemy type 2
+##            if layout[y][x] == 5:
+##                #spawn enemy type 3
+##            if layout[y][x] == 6:
+##                #exit tiles
+##            if layout[y][x] == 7:
+##                #key location
+##            if layout[y][x] == 8:
+##                #enemy obstacle position
+##            if layout[y][x] == 9 :
+##                #enemy obstacle UP
+##            if layout[y][x] == 10:
+##                #enemy obstacle DOWN
+##            if layout[y][x] == 11:
+##                #enemy obstacle RIGHT
+##            if layout[y][x] == 12:
+##                #enemy obstacle LEFT
 
 def create_player(x,y):
     global player

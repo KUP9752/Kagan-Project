@@ -14,7 +14,10 @@ ORANGE = (211,84,0)
 PURPLE = (125,60,152)
 AQUA = (22,160,133)
 PINK = (255,89,222)
-COLOUR = [WHITE,BLUE,YELLOW,RED,GREEN,ORANGE,PURPLE,AQUA,PINK]
+BROWN = (165,42,42)
+CHOCOLATE = (210,105,30)
+GREY =(128,128,128)
+COLOUR = [WHITE,BLUE,YELLOW,RED,GREEN,ORANGE,PURPLE,AQUA,PINK,BROWN,CHOCOLATE,GREY]
 
 # -- Initialise PyGame
 pygame.init()
@@ -64,7 +67,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.x = self.rect.x + self.direction_x*self.speed
             self.rect.y = self.rect.y + self.direction_y*self.speed
     
-        
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, level, speed, x, y):
         super().__init__()
@@ -74,11 +77,43 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
-class Exit(pygame.sprite.Sprite):
-    def __inti__(self, state):
+        
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        self.colour = BROWN
+        self.image = pygame.Surface([10,10]
+        self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+                                    
+        
+class Key(pygame.sprite.Sprite):
+    def __init__(self,x,y):
         super().__init__()
+        self.colour = YELLOW
+        self.image = pygame.Surface([10,10])
+        self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+                 
+class Exit(pygame.sprite.Sprite):
+    def __inti__(self,x, y):
+        super().__init__()
+        self.colour = RED
+        self.image = pygame.Surface([10,10])
+        self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.state = 0      #exit closed = default
+        
+    def state_change(self,state):
         self.state = state
+        #state = 0 -> exit is closed
+        #state = 1 -> exit is open
         
         
 ##class Cursor(pygame.sprite.Sprite):
@@ -128,7 +163,8 @@ class Button():
                 return True
             
         return False
-##---------------------------------------------------------------------Screens---------------------------------------------------------------------##
+    
+##---------------------------------------------------------------------Functions/Procedures---------------------------------------------------------------------##
     
             
 def set_level_colour(num):
@@ -162,41 +198,49 @@ def level_selector(num):
 def level_clear():
     all_sprites_group.empty()
 
-##def map_creator(layout):
-##    for y in range(len(layout)):
-##        for x in range(len(layout[y])):
-##            if layout[y][x] == 1:
-##                #places obstacle
-##            if layout[y][x] == 2:
-##                #player spawn
-##            if layout[y][x] == 3:
-##                #spawn enemy type 1
-##            if layout[y][x] == 4:
-##                #spawn enemy type 2
-##            if layout[y][x] == 5:
-##                #spawn enemy type 3
-##            if layout[y][x] == 6:
-##                #exit tiles
-##            if layout[y][x] == 7:
-##                #key location
-##            if layout[y][x] == 8:
-##                #enemy obstacle position
-##            if layout[y][x] == 9 :
-##                #enemy obstacle UP
-##            if layout[y][x] == 10:
-##                #enemy obstacle DOWN
-##            if layout[y][x] == 11:
-##                #enemy obstacle RIGHT
-##            if layout[y][x] == 12:
-##                #enemy obstacle LEFT
-                
-    
+def map_creator(layout):
+    for y in range(len(layout)):
+        for x in range(len(layout[y])):
+            if layout[y][x] == 1:
+                #places obstacle
+                obstacle = Obstacle(x*10,y*10)
+                obstacle_group.add(obstacle)
+                all_sprites_group.add(obstacle)
+            if layout[y][x] == 2:
+                #player spawn
+                create_player(x*10,y*10)
+            if layout[y][x] == 3:
+                #spawn enemy type 1
+            if layout[y][x] == 4:
+                #spawn enemy type 2
+            if layout[y][x] == 5:
+                #spawn enemy type 3
+            if layout[y][x] == 6:
+                #exit tiles
+            if layout[y][x] == 7:
+                #key location
+            if layout[y][x] == 8:
+                #enemy obstacle position
+            if layout[y][x] == 9 :
+                #enemy obstacle UP
+            if layout[y][x] == 10:
+                #enemy obstacle DOWN
+            if layout[y][x] == 11:
+                #enemy obstacle RIGHT
+            if layout[y][x] == 12:
+                #enemy obstacle LEFT
+
+def create_player(x,y):
+    global player
+    player_group.empty()
+    player = Player(BLUE,x,y)
+    player_group.add(player)
+    all_sprites_group.add(player)
+
     
 def level_1():
     print('level 1')
-    player = Player(BLUE, 500, 500)
-    player_group.add(player)
-
+    create_player(500,500)
 
     
 def level_2():
@@ -258,10 +302,17 @@ def level_10():
     
 ##---------------------------------------------------------------------Sprite groups and Sprite Initiation---------------------------------------------------------------------##
 all_sprites_group = pygame.sprite.Group()
+
 player_group = pygame.sprite.Group()
 
+obstacle_group = pygame.sprite.Group()
 
-player = Player(BLUE, 200, 200)
+key_group = pygame.sprite.Group()
+
+exit_group = pygame.sprite.Group()
+
+
+
     
 ##  --  Button/Cursor Sprites and Groups --  ##
 ##cursor_group = pygame.sprite.Group()
@@ -300,18 +351,23 @@ while not game_over:
             game_over = True
         elif level_running and len(player_group)>0:
             if event.type ==pygame.KEYDOWN:
-                if event.key ==pygame.K_w:
-                    player.set_direction_y(-1)
-                elif event.key == pygame.K_s:
-                    player.set_direction_y(1)
-                elif event.key == pygame.K_d:
-                    player.set_direction_x(1)
-                elif event.key == pygame.K_a:
-                    player.set_direction_x(-1)
+                try:
+                    if event.key ==pygame.K_w:
+                        player.set_direction_y(-1)
+                    elif event.key == pygame.K_s:
+                        player.set_direction_y(1)
+                    elif event.key == pygame.K_d:
+                        player.set_direction_x(1)
+                    elif event.key == pygame.K_a:
+                        player.set_direction_x(-1)
+                except:
+                    NameError
             elif event.type == pygame.KEYUP:
-                player.set_direction_x(0)
-                player.set_direction_y(0)
-                
+                try:
+                    player.set_direction_x(0)
+                    player.set_direction_y(0)
+                except:
+                    NameError
         if not(play_game) and event.type == pygame.MOUSEBUTTONDOWN:
             if playbutton.isOver(mouse_pos):
                 print("button clicked")

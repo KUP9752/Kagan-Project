@@ -76,22 +76,83 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y > 700:
             self.rect.y =700
         #-------Level border collision logic
-    
+
+        # ------Key Collection Logic (opens the gate)
+        key_hit_group = pygame.sprite.groupcollide(player_group,key_group,False,True)
+        for elem in key_hit_group:
+            for item in exit_group:
+                item.state_change(1)
+        # -> additional logic of collection indicator in the info menu can be added
+
+        #--------Key Collection Logic (opens the gate)
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, level, speed, x, y):
+    def __init__(self, x, y, e_type, facing):
         super().__init__()
         self.colour = BLUE
-        self.image = pygame.Surface([20,20])
+        self.type = e_type
+        self.facing = facing
+        self.direction_x = 0
+        self.direction_y = 0   #-1 in y is UP!
+        
+        if self.facing ==61:   #Facing up
+            self.direction_y = -1
+        elif self.facing ==62: #Facing Down
+            self.direction = 1
+        elif self.facing == 63: #facing right
+            self.direction_x = 1
+        elif self.facing ==64:  #facing left
+            self.direction_x = -1
+            
+        if self.type ==1:
+            self.speed = 0
+            self.colour = RED
+        elif self.type ==2:
+            self.speed = 0
+            self.colour = PINK
+        elif self.type == 3:
+            self.speed = 10
+            self.colour = ORANGE
+        self.width = 20
+        self.height = 20
+        self.image = pygame.Surface([self.width,self.height])
         self.image.fill(self.colour)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+        
+class EnemyObstacle(pygame.sprite.Sprite):
+    def __init__(self,x,y,facing):
+        super().__init__()
+        self.facing = facing
+        self.direction_y = 0
+        self.direction_x = 0
+        if self.facing ==91:        #UP
+            self.direction_y =-1
+        elif self.facing ==92:      #DOWN
+            self.direction_y = 1
+        elif self.facing == 93:     #RIGHT
+            self.direction_x = 1
+        elif self.facing == 94:     #LEFT
+            self.direction_x = -1
+        
+        self.colour = PURPLE
+        self.width = 20
+        self.height = 20
+        pygame.image = pygame.Surface([self.width,self.height])
+        self.image.fill(self.colour)
+        self.rect.x = x
+        self.rect.y = y
+
         
 class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        self.colour = BROWN
-        self.image = pygame.Surface([10,10])
+    def __init__(self, x, y, w, h):
+        super().__init__()
+        self.colour = GREEN
+        self.width = w
+        self.height = h
+        self.image = pygame.Surface([self.width,self.height])
         self.image.fill(self.colour)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -102,18 +163,22 @@ class Key(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
         self.colour = YELLOW
-        self.image = pygame.Surface([10,10])
+        self.width = 20
+        self.height = 20
+        self.image = pygame.Surface([self.width,self.height])
         self.image.fill(self.colour)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
+        
                  
 class Exit(pygame.sprite.Sprite):
-    def __inti__(self,x, y):
+    def __inti__(self,x, y, w, h):
         super().__init__()
         self.colour = RED
-        self.image = pygame.Surface([10,10])
+        self.width = w
+        self.height = h
+        self.image = pygame.Surface([self.width,self.height])
         self.image.fill(self.colour)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -209,46 +274,64 @@ def level_selector(num):
         
 def level_clear():
     all_sprites_group.empty()
-##
-##def map_creator(layout):
-##    for y in range(len(layout)):
-##        for x in range(len(layout[y])):
-##            if layout[y][x] == 1:
-##                #places obstacle
-##                obstacle = Obstacle(x*10,y*10)
-##                obstacle_group.add(obstacle)
-##                all_sprites_group.add(obstacle)
-##            if layout[y][x] == 2:
-##                #player spawn
-##                create_player(x*10,y*10)
-##            if layout[y][x] == 3:
-##                #spawn enemy type 1
-##            if layout[y][x] == 4:
-##                #spawn enemy type 2
-##            if layout[y][x] == 5:
-##                #spawn enemy type 3
-##            if layout[y][x] == 6:
-##                #exit tiles
-##            if layout[y][x] == 7:
-##                #key location
-##            if layout[y][x] == 8:
-##                #enemy obstacle position
-##            if layout[y][x] == 9 :
-##                #enemy obstacle UP
-##            if layout[y][x] == 10:
-##                #enemy obstacle DOWN
-##            if layout[y][x] == 11:
-##                #enemy obstacle RIGHT
-##            if layout[y][x] == 12:
-##                #enemy obstacle LEFT
 
+def map_creator(layout):
+    for y in range(len(layout)):
+        for x in range(len(layout[y])):
+            if layout[y][x] == 1:
+                #places obstacle (followed +2 with width and height)
+                obstacle = Obstacle(x*10,y*10,layout[y][x+1],layout[y][x+2])
+                obstacle_group.add(obstacle)
+                all_sprites_group.add(obstacle)
+            elif layout[y][x] == 2:
+                #player spawn
+                create_player(x*10,y*10)
+            elif layout[y][x] == 3:
+                #places exit (+2 for w and h)
+                exit_ = Exit(x*10,y*10, layout[y][x+1], layout[y][x+2])
+                exit_group.add(exit_)
+                all_sprites_group.add(exit_)
+            elif layout[y][x] == 4:
+                #places key
+                key = Key(x*10,y*10)
+                key_group.add(key)
+                all_sprites_group.add(key)
+##            if layout[y][x] == 5:
+##                # 5 IS NOT DEFINED IN THE MAP CREATION KEY
+            elif layout[y][x] == 6:           #--- *1 = up, *2 = down, *3= right, *4 = left ---#
+                #enemy type 1 (followed by +1 orientation)
+                enemy = Enemy(x*10,y*10,1,layout[y][x+1])
+                enemy_group.add(enemy)
+                all_sprites_group.add(enemy)
+                
+            elif layout[y][x] == 7:
+                #enemy type 2 (+1 orientation)
+                enemy = Enemy(x*10,y*10,2,layout[y][x+1])
+                enemy_group.add(enemy)
+                all_sprites_group.add(enemy)
+                
+            elif layout[y][x] == 8:
+                #enemy type 3 (+1 orientation)
+                enemy = Enemy(x*10,y*10,3,layout[y][x+1])
+                enemy_group.add(enemy)
+                all_sprites_group.add(enemy)
+                
+            elif layout[y][x] == 9 :
+                #enemy obstacle (+1 rotation)
+                enemy_obs = EnemyObstacle(x*10,y*10,layout[y][x+1])
+                enemyobs_group.add(enemy_obs)
+                all_sprites_group.add(enemy_obs)
+
+                
+###----------------------- PLayer Creation -----------------------------###
 def create_player(x,y):
     global player
-    player_group.empty()
+    player_group.empty()    # -- there can only be 1 player at one time!
     player = Player(BLUE,x,y)
     player_group.add(player)
     all_sprites_group.add(player)
-
+    
+###---------------------------------------------------------------------###
     
 def level_1():
     print('level 1')
@@ -264,10 +347,10 @@ def level_2():
     
 def level_3():
     print('level 3')
-    level_3_file = open('levels/level3.json','rt')
-    layout_3 = json.load(level_3_file)
-    level_3_file.close()
-    map_creator(layout_3)
+    level_file = open('levels/level3.json','rt')
+    layout = json.load(level_file)
+    level_file.close()
+    map_creator(layout)
 
 
 
@@ -316,6 +399,9 @@ def level_10():
 all_sprites_group = pygame.sprite.Group()
 
 player_group = pygame.sprite.Group()
+
+enemy_group = pygame.sprite.Group()
+enemyobs_group = pygame.sprite.Group()
 
 obstacle_group = pygame.sprite.Group()
 
@@ -428,8 +514,8 @@ while not game_over:
     elif level_running:
         
         
-        player_group.draw(screen)
-        player_group.update()
+        all_sprites_group.draw(screen)
+        all_sprites_group.update()
         
         if end_level:
             end_level = False

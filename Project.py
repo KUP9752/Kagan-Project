@@ -75,7 +75,9 @@ class Player(pygame.sprite.Sprite):
             self.rect.y =0
         if self.rect.y > 700:
             self.rect.y =700
-        #-------Level border collision logic
+        #-------Obstacle collision Logic
+        #     ->
+            
 
         # ------Key Collection Logic (opens the gate)
         key_hit_group = pygame.sprite.groupcollide(player_group,key_group,False,True)
@@ -84,7 +86,7 @@ class Player(pygame.sprite.Sprite):
                 item.state_change(1)
         # -> additional logic of collection indicator in the info menu can be added
 
-        #--------Key Collection Logic (opens the gate)
+        
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, e_type, facing):
@@ -98,7 +100,7 @@ class Enemy(pygame.sprite.Sprite):
         if self.facing ==61:   #Facing up
             self.direction_y = -1
         elif self.facing ==62: #Facing Down
-            self.direction = 1
+            self.direction_y = 1
         elif self.facing == 63: #facing right
             self.direction_x = 1
         elif self.facing ==64:  #facing left
@@ -120,6 +122,12 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+##        def update(self):
+##            # - > movement for type 3 enemies
+##                
+            
+            
 
         
 class EnemyObstacle(pygame.sprite.Sprite):
@@ -252,25 +260,25 @@ def reset_level_colour(num):
 def level_selector(num):
     num = int(num)
     if num == 1:
-        level_1()
-    elif num == 2:
-        level_2()
-    elif num == 3:
-        level_3()
-    elif num ==4:
-        level_4()
-    elif num ==5:
-        level_5()
-    elif num ==6:
-        level_6()
-    elif num ==7:
-        level_7()
-    elif num ==8:
-        level_8()
-    elif num ==9:
-        level_9()
-    elif num == 10:
-        level_l0()
+        level_1(num)
+    if num == 2:
+        level_2(num)
+    if num == 3:
+        level_3(num)
+    if num ==4:
+        level_4(num)
+    if num ==5:
+        level_5(num)
+    if num ==6:
+        level_6(num)
+    if num ==7:
+        level_7(num)
+    if num ==8:
+        level_8(num)
+    if num ==9:
+        level_9(num)
+    if num == 10:
+        level_l0(num)
         
 def level_clear():
     all_sprites_group.empty()
@@ -331,21 +339,28 @@ def create_player(x,y):
     player_group.add(player)
     all_sprites_group.add(player)
     
-###---------------------------------------------------------------------###
-    
-def level_1():
-    print('level 1')
+###------------------------------------Level Creation---------------------------------###
+def leveltext_creator(num):
+    global leveltext
+    global leveltextRect
+    leveltext = bigfont.render('LEVEL '+ str(num),False, PURPLE)
+    leveltextRect = leveltext.get_rect()
+    leveltextRect.center = (1150,50)
+def level_1(num):
+    leveltext_creator(num)
     create_player(500,500)
 
     
-def level_2():
+def level_2(num):
+    leveltext_creator(num)
     print('level 2')
 
 
 
 
     
-def level_3():
+def level_3(num):
+    leveltext_creator(num)
     print('level 3')
     level_file = open('levels/level3.json','rt')
     layout = json.load(level_file)
@@ -355,37 +370,44 @@ def level_3():
 
 
     
-def level_4():
+def level_4(num):
+    leveltext_creator(num)
     print('level 4')
 
 
     
-def level_5():
+def level_5(num):
+    leveltext_creator(num)
     print('level 5')
 
 
     
-def level_6():
+def level_6(num):
+    leveltext_creator(num)
     print('level 6')
 
 
     
-def level_7():
+def level_7(num):
+    leveltext_creator(num)
     print('level 7')
 
 
     
-def level_8():
+def level_8(num):
+    leveltext_creator(num)
     print('level 8')
 
 
     
-def level_9():
+def level_9(num):
+    leveltext_creator(num)
     print('level 9')
 
 
     
-def level_10():
+def level_10(num):
+    leveltext_creator(num)
     print('level 10')
 
     
@@ -468,7 +490,7 @@ while not game_over:
                     NameError
         if not(play_game) and event.type == pygame.MOUSEBUTTONDOWN:
             if playbutton.isOver(mouse_pos):
-                print("button clicked")
+                print("play button clicked")
                 play_game= True
                 for counter in range(0,10):
                     level_button = Button(ORANGE,level_x_places[counter], level_y_places[counter],100,100,PLAYfont,level_numbers[counter])
@@ -482,7 +504,7 @@ while not game_over:
                 if play_game and level_buttons[counter].isOver(mouse_pos):
                     set_level_colour(counter) #-calls procedure to change button hover colour
                 elif play_game:
-                    reset_level_colour(counter) #-calls procedure that can revert the coour
+                    reset_level_colour(counter) #-calls procedure that can revert the colour
         if play_game and event.type == pygame.MOUSEBUTTONDOWN:  #checks if a level is clicked
             for counter in range(0,10):
                 if level_buttons[counter].isOver(mouse_pos):
@@ -504,6 +526,10 @@ while not game_over:
     screen.fill(BLACK)        
 ##    cursor_group.update()
 ##    cursor_group.draw(screen)
+
+
+
+### - > INSERT SETTING SCREEN with a boolean operator, (as outer loop)
     
     if not level_running:   #-whether a level is running
         if not play_game:   #-nothing runnnig displays title screen
@@ -512,10 +538,12 @@ while not game_over:
             for counter in range(0,10):
                 level_buttons[counter].draw(screen)
     elif level_running:
-        
-        
+        try:
+            screen.blit(leveltext,leveltextRect)
+        except:
+           NameError
         all_sprites_group.draw(screen)
-        all_sprites_group.update()
+        player_group.update()
         
         if end_level:
             end_level = False

@@ -286,58 +286,83 @@ def level_clear():
 def map_creator(layout):
     for y in range(len(layout)):
         for x in range(len(layout[y])):
+            
             if layout[y][x] == 1:
                 #places obstacle (followed +2 with width and height)
-                obstacle = Obstacle(x*10,y*10,layout[y][x+1],layout[y][x+2])
-                obstacle_group.add(obstacle)
-                all_sprites_group.add(obstacle)
+                create_obstacle(x*10,y*10,layout[y][x+1],layout[x+2])
+                
             elif layout[y][x] == 2:
                 #player spawn
                 create_player(x*10,y*10)
+                
             elif layout[y][x] == 3:
                 #places exit (+2 for w and h)
-                exit_ = Exit(x*10,y*10, layout[y][x+1], layout[y][x+2])
-                exit_group.add(exit_)
-                all_sprites_group.add(exit_)
+                create_exit(x*10,y*10,layout[y][x+1],layout[y][x+2])
+                
             elif layout[y][x] == 4:
                 #places key
-                key = Key(x*10,y*10)
-                key_group.add(key)
-                all_sprites_group.add(key)
+                create_key(x*10,y*10)
+                
 ##            if layout[y][x] == 5:
 ##                # 5 IS NOT DEFINED IN THE MAP CREATION KEY
+                
             elif layout[y][x] == 6:           #--- *1 = up, *2 = down, *3= right, *4 = left ---#
                 #enemy type 1 (followed by +1 orientation)
-                enemy = Enemy(x*10,y*10,1,layout[y][x+1])
-                enemy_group.add(enemy)
-                all_sprites_group.add(enemy)
+                create_enemy(x*10,y*10,1, layout[y][x+1])
                 
             elif layout[y][x] == 7:
-                #enemy type 2 (+1 orientation)
-                enemy = Enemy(x*10,y*10,2,layout[y][x+1])
-                enemy_group.add(enemy)
-                all_sprites_group.add(enemy)
+                #enemy type 2 (followed by +1 orientation)
+                create_enemy(x*10,y*10,2,layout[y][x+1])
                 
             elif layout[y][x] == 8:
                 #enemy type 3 (+1 orientation)
-                enemy = Enemy(x*10,y*10,3,layout[y][x+1])
-                enemy_group.add(enemy)
-                all_sprites_group.add(enemy)
+                create_enemy(x*10,y*10,3,layout[y][x+1])
                 
             elif layout[y][x] == 9 :
                 #enemy obstacle (+1 rotation)
-                enemy_obs = EnemyObstacle(x*10,y*10,layout[y][x+1])
-                enemyobs_group.add(enemy_obs)
-                all_sprites_group.add(enemy_obs)
+                create_enemyobstacle(x*10,y*10,layout[y][x+1])
 
                 
-###----------------------- PLayer Creation -----------------------------###
+###----------------------- Sprite Creation -----------------------------###
 def create_player(x,y):
     global player
     player_group.empty()    # -- there can only be 1 player at one time!
     player = Player(BLUE,x,y)
     player_group.add(player)
     all_sprites_group.add(player)
+    
+def create_obstacle(x,y,w,h):
+    global obstacle
+    obstacle = Obstacle(x,y,w,h)
+    obstacle_group.add(obstacle)
+    all_sprites_group.add(obstacle)
+
+def create_exit(x,y,w,h):
+    global exit_
+    exit_ = Exit(x,y,w,h)
+    exit_group.add(exit_)
+    all_sprites_group.add(exit_)
+
+def create_key(x,y):
+    global key
+    key = Key(x,y)
+    key_group.add(key)
+    all_sprites_group.add(key)
+
+def create_enemy(x,y,e_type,facing):
+    global enemy
+    enemy = Enemy(x,y,e_type,facing)
+    enemy_group.add(enemy)
+    all_sprites_group.add(enemy)
+                             
+def create_enemyobstacle(x,y,facing):
+    global enemy_obs
+    enemy_obs = EnemyObstacle(x,y,facing)
+    enemyobs_group.add(enemy_obs)
+    all_sprites_group.add(enemy_obs)
+
+
+
     
 ###------------------------------------Level Creation---------------------------------###
 def leveltext_creator(num):
@@ -346,6 +371,7 @@ def leveltext_creator(num):
     leveltext = bigfont.render('LEVEL '+ str(num),False, PURPLE)
     leveltextRect = leveltext.get_rect()
     leveltextRect.center = (1150,50)
+    
 def level_1(num):
     leveltext_creator(num)
     create_player(500,500)

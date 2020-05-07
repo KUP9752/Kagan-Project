@@ -209,6 +209,8 @@ class Button():
         self.text = text
         self.x = x
         self.y = y
+    def set_text(self,value):
+        self.text = value
 
     def draw(self,screen,outline=None):
         #Call this method to draw the button on the screen
@@ -277,7 +279,7 @@ def level_selector(num):
         level_8(num)
     if num ==9:
         level_9(num)
-    if num == 10:
+    if num ==10:
         level_l0(num)
         
 def level_clear():
@@ -372,6 +374,18 @@ def leveltext_creator(num):
     leveltextRect = leveltext.get_rect()
     leveltextRect.center = (1150,50)
     
+def pause_menu_title():
+    pausetext = bigfont.render('Pause Menu',False, BLUE)
+    pausetextRect = pausetext.get_rect()
+    pausetextRect.center = (640,200)
+    return screen.blit(pausetext, pausetextRect)
+
+def level_menu_title():
+    leveltitle = bigfont.render('Level Menu',False,BLUE)
+    leveltitleRect = leveltitle.get_rect()
+    leveltitleRect.center = (640,200)
+    return screen.blit(leveltitle,leveltitleRect)
+
 def level_1(num):
     leveltext_creator(num)
     create_player(500,500)
@@ -434,7 +448,7 @@ def level_9(num):
     
 def level_10(num):
     leveltext_creator(num)
-    print('level 10')
+    print("level 10")
 
     
 
@@ -466,7 +480,6 @@ exit_group = pygame.sprite.Group()
 ##cursor_group.add(cursor)
     
 
-playbutton = Button(RED, 540,150,200,100,PLAYfont,'PLAY')
 ##button_group = pygame.sprite.Group()
 ##button_group.add(playbutton)
 
@@ -482,7 +495,17 @@ level_y_places=[260,260,260,260,260,460,460,460,460,460]
 level_numbers = ['1','2','3','4','5','6','7','8','9','10']
 level_running = False
 
+
 end_level = False
+pause_menu = False
+### -----------------------------------------------------------------Constant Buttons-------------------------------------------------------------------------------###
+playbutton = Button(RED, 540,150,200,100,PLAYfont,'PLAY')
+for counter in range(0,10):
+    level_button = Button(ORANGE,level_x_places[counter], level_y_places[counter],100,100,PLAYfont,level_numbers[counter])
+    level_buttons.append(level_button)
+pause_button = Button(BLUE,1060,600,200,100,bigfont,'PAUSE')
+pmenu_button = Button(ORANGE, 540, 250, 200, 50, font, 'MENU')
+plevel_button = Button(ORANGE,540,350, 200,50,font,'LEVELS')
 
 # -- current_level //used later to determine which level is running
 
@@ -514,18 +537,71 @@ while not game_over:
                     player.set_direction_y(0)
                 except:
                     NameError
+         
+    
+ 
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if pause_button.isOver(mouse_pos):
+                print("pause button clicked")
+
+                # This alternates the use of the pause menu, (if in the pause menu clicking the pause button takes you out of the pause menu)
+                if pause_menu:
+                    pause_menu = False
+                    pause_button.set_text("PAUSE")
+                else:
+                    pause_menu = True
+                    pause_button.set_text("RESUME")
+                    
+            if pmenu_button.isOver(mouse_pos):
+                
+                print("pmenu is clicked")
+                level_running = False
+                level_clear()
+                play_game = False
+                pause_menu = False
+                pause_button.set_text("PAUSE")
+                
+            if plevel_button.isOver(mouse_pos):
+                print("plevel is clicked")
+                
+                level_running = False
+                level_clear()
+                play_game = True
+                pause_menu = False
+                pause_button.set_text("PAUSE")
+                
+        #checks if the PLAY button is clicked and creates the level buttons
+            
         if not(play_game) and event.type == pygame.MOUSEBUTTONDOWN:
             if playbutton.isOver(mouse_pos):
                 print("play button clicked")
                 play_game= True
-                for counter in range(0,10):
-                    level_button = Button(ORANGE,level_x_places[counter], level_y_places[counter],100,100,PLAYfont,level_numbers[counter])
-                    level_buttons.append(level_button)
+
+
+                    
+        # All the colour changes for any button done here             
         if event.type == pygame.MOUSEMOTION:
             if playbutton.isOver(mouse_pos):
                 playbutton.colour = GREEN
             else:
                 playbutton.colour =RED
+
+            if pause_button.isOver(mouse_pos):
+                pause_button.colour = GREEN
+            else:
+                pause_button.colour = BLUE
+
+            if pmenu_button.isOver(mouse_pos):
+                pmenu_button.colour = YELLOW
+            else:
+                pmenu_button.colour = ORANGE
+
+            if plevel_button.isOver(mouse_pos):
+                plevel_button.colour = YELLOW
+            else:
+                plevel_button.colour = ORANGE
+
+                
             for counter in range(0,10):
                 if play_game and level_buttons[counter].isOver(mouse_pos):
                     set_level_colour(counter) #-calls procedure to change button hover colour
@@ -556,14 +632,20 @@ while not game_over:
 
 
 ### - > INSERT SETTING SCREEN with a boolean operator, (as outer loop)
-    
-    if not level_running:   #-whether a level is running
+    pause_button.draw(screen)
+    if pause_menu:
+        pause_menu_title()
+        pmenu_button.draw(screen)
+        plevel_button.draw(screen)
+            
+    if not level_running and not pause_menu:   #-whether a level is running
         if not play_game:   #-nothing runnnig displays title screen
             playbutton.draw(screen)
         if play_game:       #-play pressed into level screen
+            level_menu_title()
             for counter in range(0,10):
                 level_buttons[counter].draw(screen)
-    elif level_running:
+    elif level_running and not pause_menu:
         try:
             screen.blit(leveltext,leveltextRect)
         except:

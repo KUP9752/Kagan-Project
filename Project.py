@@ -506,6 +506,7 @@ for counter in range(0,10):
 pause_button = Button(BLUE,1060,600,200,100,bigfont,'PAUSE')
 pmenu_button = Button(ORANGE, 540, 250, 200, 50, font, 'MENU')
 plevel_button = Button(ORANGE,540,350, 200,50,font,'LEVELS')
+pquit_button = Button(RED, 540, 450, 200, 50, font, 'QUIT')
 
 # -- current_level //used later to determine which level is running
 
@@ -539,7 +540,7 @@ while not game_over:
                     NameError
          
     
- 
+        # If the mouse is clocked over a button the actions are done.
         if event.type == pygame.MOUSEBUTTONDOWN:
             if pause_button.isOver(mouse_pos):
                 print("pause button clicked")
@@ -552,7 +553,7 @@ while not game_over:
                     pause_menu = True
                     pause_button.set_text("RESUME")
                     
-            if pmenu_button.isOver(mouse_pos):
+            if pause_menu and pmenu_button.isOver(mouse_pos):
                 
                 print("pmenu is clicked")
                 level_running = False
@@ -561,7 +562,7 @@ while not game_over:
                 pause_menu = False
                 pause_button.set_text("PAUSE")
                 
-            if plevel_button.isOver(mouse_pos):
+            if pause_menu and plevel_button.isOver(mouse_pos):
                 print("plevel is clicked")
                 
                 level_running = False
@@ -569,10 +570,14 @@ while not game_over:
                 play_game = True
                 pause_menu = False
                 pause_button.set_text("PAUSE")
-                
+            
+            if pause_menu and pquit_button.isOver(mouse_pos):
+                print("pquit is clicked")
+
+                game_over  = True
         #checks if the PLAY button is clicked and creates the level buttons
             
-        if not(play_game) and event.type == pygame.MOUSEBUTTONDOWN:
+        if not(pause_menu) and not(play_game) and event.type == pygame.MOUSEBUTTONDOWN:
             if playbutton.isOver(mouse_pos):
                 print("play button clicked")
                 play_game= True
@@ -581,25 +586,31 @@ while not game_over:
                     
         # All the colour changes for any button done here             
         if event.type == pygame.MOUSEMOTION:
+            # Play 
             if playbutton.isOver(mouse_pos):
                 playbutton.colour = GREEN
             else:
                 playbutton.colour =RED
-
+            # Pause 
             if pause_button.isOver(mouse_pos):
                 pause_button.colour = GREEN
             else:
                 pause_button.colour = BLUE
-
+            # Pause menu
             if pmenu_button.isOver(mouse_pos):
                 pmenu_button.colour = YELLOW
             else:
                 pmenu_button.colour = ORANGE
-
+            # Pause Level
             if plevel_button.isOver(mouse_pos):
                 plevel_button.colour = YELLOW
             else:
                 plevel_button.colour = ORANGE
+            # Pause Quit
+            if pquit_button.isOver(mouse_pos):
+                pquit_button.colour = PINK
+            else:
+                pquit_button.colour = RED
 
                 
             for counter in range(0,10):
@@ -607,7 +618,7 @@ while not game_over:
                     set_level_colour(counter) #-calls procedure to change button hover colour
                 elif play_game:
                     reset_level_colour(counter) #-calls procedure that can revert the colour
-        if play_game and event.type == pygame.MOUSEBUTTONDOWN:  #checks if a level is clicked
+        if play_game and not(pause_menu) and event.type == pygame.MOUSEBUTTONDOWN:  #checks if a level is clicked
             for counter in range(0,10):
                 if level_buttons[counter].isOver(mouse_pos):
                     current_level =level_numbers[counter]
@@ -631,12 +642,13 @@ while not game_over:
 
 
 
-### - > INSERT SETTING SCREEN with a boolean operator, (as outer loop)
+    # Pause Menu
     pause_button.draw(screen)
     if pause_menu:
         pause_menu_title()
         pmenu_button.draw(screen)
         plevel_button.draw(screen)
+        pquit_button.draw(screen)
             
     if not level_running and not pause_menu:   #-whether a level is running
         if not play_game:   #-nothing runnnig displays title screen

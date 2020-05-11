@@ -46,6 +46,7 @@ pygame.display.set_caption("GAME")
 class Player(pygame.sprite.Sprite):
     def __init__(self,colour,x,y):
         super().__init__()
+        self.keycollected =False
         self.speed =10
         self.direction_x =0
         self.direction_y =0
@@ -61,6 +62,9 @@ class Player(pygame.sprite.Sprite):
 
     def set_direction_y(self,value):
         self.direction_y = value
+
+    def get_key_state(self):
+        return self.keycollected
         
     def update(self):
         #------Level border collision logic
@@ -84,6 +88,7 @@ class Player(pygame.sprite.Sprite):
         for elem in key_hit_group:
             for item in exit_group:
                 item.state_change(1)
+                self.key_collected = True
         # -> additional logic of collection indicator in the info menu can be added
 
         
@@ -136,20 +141,25 @@ class EnemyObstacle(pygame.sprite.Sprite):
         self.facing = facing
         self.direction_y = 0
         self.direction_x = 0
+        self.colour = PURPLE    #purple is the original colour the blocks with rotation have white colour
         if self.facing ==91:        #UP
             self.direction_y =-1
+            self.colour = WHITE
         elif self.facing ==92:      #DOWN
             self.direction_y = 1
+            self.colour = WHITE
         elif self.facing == 93:     #RIGHT
             self.direction_x = 1
+            self.colour = WHITE
         elif self.facing == 94:     #LEFT
             self.direction_x = -1
+            self.colour = WHITE
         
-        self.colour = PURPLE
         self.width = 20
         self.height = 20
-        pygame.image = pygame.Surface([self.width,self.height])
+        self.image = pygame.Surface([self.width,self.height])
         self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
@@ -157,7 +167,7 @@ class EnemyObstacle(pygame.sprite.Sprite):
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h):
         super().__init__()
-        self.colour = GREEN
+        self.colour = AQUA
         self.width = w
         self.height = h
         self.image = pygame.Surface([self.width,self.height])
@@ -181,7 +191,7 @@ class Key(pygame.sprite.Sprite):
         
                  
 class Exit(pygame.sprite.Sprite):
-    def __inti__(self,x, y, w, h):
+    def __init__(self,x, y, w, h):
         super().__init__()
         self.colour = RED
         self.width = w
@@ -191,10 +201,17 @@ class Exit(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.state = 0      #exit closed by default
+        self.state = 0    #exit closed by default
+
+    def get_state(self):
+        return self.state
+        
+    def change_colour(self,colour):
+        self.colour = colour
+        self.image.fill(self.colour)
         
     def state_change(self,state):
-        self.state = state
+        self.state = 1
         #state = 0 -> exit is closed
         #state = 1 -> exit is open
         
@@ -291,7 +308,7 @@ def map_creator(layout):
             
             if layout[y][x] == 1:
                 #places obstacle (followed +2 with width and height)
-                create_obstacle(x*10,y*10,layout[y][x+1],layout[x+2])
+                create_obstacle(x*10,y*10,int(layout[y][x+1]),int(layout[y][x+2]))
                 
             elif layout[y][x] == 2:
                 #player spawn
@@ -299,7 +316,7 @@ def map_creator(layout):
                 
             elif layout[y][x] == 3:
                 #places exit (+2 for w and h)
-                create_exit(x*10,y*10,layout[y][x+1],layout[y][x+2])
+                create_exit(x*10,y*10,int(layout[y][x+1]),int(layout[y][x+2]))
                 
             elif layout[y][x] == 4:
                 #places key
@@ -310,24 +327,27 @@ def map_creator(layout):
                 
             elif layout[y][x] == 6:           #--- *1 = up, *2 = down, *3= right, *4 = left ---#
                 #enemy type 1 (followed by +1 orientation)
-                create_enemy(x*10,y*10,1, layout[y][x+1])
+
+                create_enemy(x*10,y*10,1, int(layout[y][x+1]))
                 
             elif layout[y][x] == 7:
                 #enemy type 2 (followed by +1 orientation)
-                create_enemy(x*10,y*10,2,layout[y][x+1])
+                create_enemy(x*10,y*10,2,int(layout[y][x+1]))
                 
             elif layout[y][x] == 8:
                 #enemy type 3 (+1 orientation)
-                create_enemy(x*10,y*10,3,layout[y][x+1])
+                create_enemy(x*10,y*10,3,int(layout[y][x+1]))
                 
             elif layout[y][x] == 9 :
                 #enemy obstacle (+1 rotation)
-                create_enemyobstacle(x*10,y*10,layout[y][x+1])
+                create_enemyobstacle(x*10,y*10,int(layout[y][x+1]))
 
                 
 ###----------------------- Sprite Creation -----------------------------###
 def create_player(x,y):
     global player
+    global player_group
+    global all_sprites_group
     player_group.empty()    # -- there can only be 1 player at one time!
     player = Player(BLUE,x,y)
     player_group.add(player)
@@ -341,9 +361,9 @@ def create_obstacle(x,y,w,h):
 
 def create_exit(x,y,w,h):
     global exit_
-    exit_ = Exit(x,y,w,h)
-    exit_group.add(exit_)
-    all_sprites_group.add(exit_)
+    exitblock = Exit(x,y,w,h)
+    exit_group.add(exitblock)
+    all_sprites_group.add(exitblock)
 
 def create_key(x,y):
     global key
@@ -366,7 +386,7 @@ def create_enemyobstacle(x,y,facing):
 
 
     
-###------------------------------------Level Creation---------------------------------###
+###--------------------------------------------Text Creation----------------------------------###
 def leveltext_creator(num):
     global leveltext
     global leveltextRect
@@ -386,9 +406,24 @@ def level_menu_title():
     leveltitleRect.center = (640,200)
     return screen.blit(leveltitle,leveltitleRect)
 
+def key_col_text():
+    global keytext
+    global keytextRect
+    keytext = font.render('Key Collected',False, YELLOW)
+    keytextRect = keytext.get_rect()
+    keytextRect.center = (1150,550)
+    return screen.blit(keytext, keytextRect)
+
+
+
+        
+###------------------------------------Level Creation---------------------------------###
 def level_1(num):
     leveltext_creator(num)
     create_player(500,500)
+    create_obstacle(100, 100, 100, 200)
+    create_key(300,300)
+    create_exit(500,0,200,50)
 
     
 def level_2(num):
@@ -658,8 +693,13 @@ while not game_over:
             for counter in range(0,10):
                 level_buttons[counter].draw(screen)
     elif level_running and not pause_menu:
+        #writes the level on the screen
         try:
             screen.blit(leveltext,leveltextRect)
+            for item in exit_group:
+                if item.get_state() == 1:
+                    key_col_text()
+                    item.change_colour(GREEN)
         except:
            NameError
         all_sprites_group.draw(screen)
@@ -675,6 +715,7 @@ while not game_over:
 
 ##---------------------------------------------------------------------Draw here---------------------------------------------------------------------##
             
+
 
 
 

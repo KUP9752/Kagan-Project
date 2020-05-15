@@ -46,7 +46,7 @@ pygame.display.set_caption("GAME")
 class Player(pygame.sprite.Sprite):
     def __init__(self,colour,x,y):
         super().__init__()
-        self.keycollected =False
+        self.keycollected = False
         self.speed =5
         self.direction_x =0
         self.direction_y =0
@@ -80,8 +80,13 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y > 700:
             self.rect.y =700
         #-------Obstacle collision Logic
-        #     ->
-            
+        
+        obstacle_hit_group = pygame.sprite.groupcollide(player_group,obstacle_group,False,False)
+        for player in obstacle_hit_group:
+            self.rect.x-= self.speed*self.direction_x
+            self.rect.y -=self.speed*self.direction_y
+
+
 
         # ------Key Collection Logic (opens the gate)
         key_hit_group = pygame.sprite.groupcollide(player_group,key_group,False,True)
@@ -89,8 +94,15 @@ class Player(pygame.sprite.Sprite):
             for item in exit_group:
                 item.state_change(1)
                 self.key_collected = True
+                
         # -> additional logic of collection indicator in the info menu can be added
+            #Wirtten later in the code where the text displayin logic is
+        
+        # -> Logic for finishing a level after the key is collected
+        
 
+                
+                
         
 
 class Enemy(pygame.sprite.Sprite):
@@ -301,6 +313,12 @@ def level_selector(num):
         
 def level_clear():
     all_sprites_group.empty()
+    obstacle_group.empty()
+    player_group.empty()
+    enemy_group.empty()
+    enemyobs_group.empty()
+    key_group.empty()
+    exit_group.empty()
 
 def map_creator(layout):
     for y in range(len(layout)):
@@ -414,7 +432,14 @@ def key_col_text():
     keytextRect.center = (1150,550)
     return screen.blit(keytext, keytextRect)
 
-
+def level_complete():
+    global comptext
+    global comptextRect
+    comptext = bigfont.render('Level Completed!',False,GREEN)
+    comptextRect = comptext.get_rect()
+    comptextRect.center = (640,300)
+    return screen.blit(comptext, comptextRect)
+    
 
         
 ###------------------------------------Level Creation---------------------------------###
@@ -599,7 +624,7 @@ while not game_over:
                 
             if pause_menu and plevel_button.isOver(mouse_pos):
                 print("plevel is clicked")
-                
+                level_clear()
                 level_running = False
                 level_clear()
                 play_game = True
@@ -700,6 +725,14 @@ while not game_over:
                 if item.get_state() == 1:
                     key_col_text()
                     item.change_colour(GREEN)
+                    
+                exit_hit_group = pygame.sprite.groupcollide(player_group,exit_group,False,False)
+                for elem in exit_hit_group:
+                    level_clear()
+                    
+                    #make the completion a button-------------------------------------------------------------------------------------------------------------------------------------------------------------------<<<
+                    level_complete()
+                        
         except:
            NameError
         all_sprites_group.draw(screen)

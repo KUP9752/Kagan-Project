@@ -17,7 +17,8 @@ PINK = (255,89,222)
 BROWN = (165,42,42)
 CHOCOLATE = (210,105,30)
 GREY =(128,128,128)
-COLOUR = [WHITE,BLUE,YELLOW,RED,GREEN,ORANGE,PURPLE,AQUA,PINK,BROWN,CHOCOLATE,GREY]
+COLOUR = [WHITE,BLUE,YELLOW,RED,GREEN,ORANGE,PURPLE,
+          AQUA,PINK,BROWN,CHOCOLATE,GREY]
 
 # -- Initialise PyGame
 pygame.init()
@@ -96,7 +97,7 @@ class Player(pygame.sprite.Sprite):
                 self.key_collected = True
                 
         # -> additional logic of collection indicator in the info menu can be added
-            #Wirtten later in the code where the text displayin logic is
+            #Wirtten later in the code where the text displaying logic is
         
         # -> Logic for finishing a level after the key is collected
         
@@ -753,7 +754,8 @@ while not game_over:
 
 
         
-    # -- flip display to reveal new position of objects
+    # -- flip display to draw the buttons on the screen
+    
     pygame.display.flip()
 
     # - The clock ticks over

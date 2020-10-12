@@ -48,7 +48,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self,colour,x,y):
         super().__init__()
         self.keycollected = False
-        self.speed =5
+        self.speed =10
         self.direction_x =0
         self.direction_y =0
         self.colour = colour
@@ -88,7 +88,13 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -=self.speed*self.direction_y
 
 
-
+        # ------ Exit closed check
+        exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)
+        for elem in exit_hit_group:
+            if not self.get_key_state():
+                no_key_text()
+                
+                
         # ------Key Collection Logic (opens the gate)
         key_hit_group = pygame.sprite.groupcollide(player_group,key_group,False,True)
         for elem in key_hit_group:
@@ -224,7 +230,7 @@ class Exit(pygame.sprite.Sprite):
         self.image.fill(self.colour)
         
     def state_change(self,state):
-        self.state = 1
+        self.state = int(state)
         #state = 0 -> exit is closed
         #state = 1 -> exit is open
         
@@ -432,6 +438,14 @@ def key_col_text():
     keytextRect = keytext.get_rect()
     keytextRect.center = (1150,550)
     return screen.blit(keytext, keytextRect)
+
+def no_key_text():
+    global nokeytext
+    global nokeytextRect
+    nokeytext = font.render('Key was not collected', False, RED)
+    nokeytextRect = nokeytext.get_rect()
+    nokeytextRect.center = (1150,550)
+    return screen.blit(nokeytext,nokeytextRect)
 
 def level_complete():
     global comptext
@@ -727,9 +741,13 @@ while not game_over:
                     key_col_text()
                     item.change_colour(GREEN)
                     
-                exit_hit_group = pygame.sprite.groupcollide(player_group,exit_group,False,False)
+                exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)
                 for elem in exit_hit_group:
-                    level_clear()
+                    if item.get_state() == 1:
+                        level_clear()
+                    else:
+                        no_key_text()
+                    
                     
                     #make the completion a button-------------------------------------------------------------------------------------------------------------------------------------------------------------------<<<
                     level_complete()

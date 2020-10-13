@@ -318,7 +318,7 @@ def level_selector(num):
     if num ==10:
         level_l0(num)
         
-def level_clear():
+def level_clear():                  #clears all the sprite groups 
     all_sprites_group.empty()
     obstacle_group.empty()
     player_group.empty()
@@ -431,7 +431,7 @@ def level_menu_title():
     leveltitleRect.center = (640,200)
     return screen.blit(leveltitle,leveltitleRect)
 
-def key_col_text():
+def key_col_text():     #text to display when key is collected
     global keytext
     global keytextRect
     keytext = font.render('Key Collected',False, YELLOW)
@@ -439,7 +439,7 @@ def key_col_text():
     keytextRect.center = (1150,550)
     return screen.blit(keytext, keytextRect)
 
-def no_key_text():
+def no_key_text():      #text to display when the key is not collected but the user tries to leave thru the door
     global nokeytext
     global nokeytextRect
     nokeytext = font.render('Key was not collected', False, RED)
@@ -447,7 +447,7 @@ def no_key_text():
     nokeytextRect.center = (1150,550)
     return screen.blit(nokeytext,nokeytextRect)
 
-def level_complete():
+def level_complete_text():
     global comptext
     global comptextRect
     comptext = bigfont.render('Level Completed!',False,GREEN)
@@ -583,6 +583,8 @@ pmenu_button = Button(ORANGE, 540, 250, 200, 50, font, 'MENU')
 plevel_button = Button(ORANGE,540,350, 200,50,font,'LEVELS')
 pquit_button = Button(RED, 540, 450, 200, 50, font, 'QUIT')
 
+endlevel_button = Button(ORANGE, 440, 500, 400, 50, font, 'Return to Menu')
+
 # -- current_level //used later to determine which level is running
 
 ##                                                                                       _________             
@@ -615,7 +617,7 @@ while not game_over:
                     NameError
          
     
-        # If the mouse is clocked over a button the actions are done.
+        # If the mouse is clicked over a button the actions are done.
         if event.type == pygame.MOUSEBUTTONDOWN:
             if pause_button.isOver(mouse_pos):
                 print("pause button clicked")
@@ -637,22 +639,29 @@ while not game_over:
                 pause_menu = False
                 pause_button.set_text("PAUSE")
                 
-            if pause_menu and plevel_button.isOver(mouse_pos):
+            if pause_menu and plevel_button.isOver(mouse_pos):     #checks if we are in pause menu and if the levels button is clicked
                 print("plevel is clicked")
                 level_clear()
                 level_running = False
-                level_clear()
+                
                 play_game = True
                 pause_menu = False
                 pause_button.set_text("PAUSE")
             
-            if pause_menu and pquit_button.isOver(mouse_pos):
+            if pause_menu and pquit_button.isOver(mouse_pos):       #checks if we are in pause menu and if 'QUIT' is pressed
                 print("pquit is clicked")
-
                 game_over  = True
+                
+            if end_level and endlevel_button.isOver(mouse_pos):             #checks if return to menu has been clicked
+                print('return to menu is clicked')
+                
+                level_running = False
+                play_game = True
+                end_level = False
+                
         #checks if the PLAY button is clicked and creates the level buttons
             
-        if not(pause_menu) and not(play_game) and event.type == pygame.MOUSEBUTTONDOWN:
+        if not(pause_menu) and not(play_game) and not level_running and event.type == pygame.MOUSEBUTTONDOWN:
             if playbutton.isOver(mouse_pos):
                 print("play button clicked")
                 play_game= True
@@ -676,6 +685,11 @@ while not game_over:
                 pmenu_button.colour = YELLOW
             else:
                 pmenu_button.colour = ORANGE
+            # End of level menu button
+            if endlevel_button.isOver(mouse_pos):
+                endlevel_button.colour = YELLOW
+            else:
+                endlevel_button.colour = ORANGE
             # Pause Level
             if plevel_button.isOver(mouse_pos):
                 plevel_button.colour = YELLOW
@@ -726,31 +740,26 @@ while not game_over:
         pquit_button.draw(screen)
             
     if not level_running and not pause_menu:   #-whether a level is running
-        if not play_game:   #-nothing runnnig displays title screen
+        if not play_game and not end_level:   #-nothing runnnig displays title screen
             playbutton.draw(screen)
         if play_game:       #-play pressed into level screen
             level_menu_title()
             for counter in range(0,10):
                 level_buttons[counter].draw(screen)
     elif level_running and not pause_menu:
+        play_game = False
         #writes the level on the screen
         try:
             screen.blit(leveltext,leveltextRect)
+        #checks whether the key has been collected to finish the level
             for item in exit_group:
                 if item.get_state() == 1:
                     key_col_text()
                     item.change_colour(GREEN)
-                    
-                exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)
-                for elem in exit_hit_group:
-                    if item.get_state() == 1:
+                    exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)
+                    for elem in exit_hit_group:
                         level_clear()
-                    else:
-                        no_key_text()
-                    
-                    
-                    #make the completion a button-------------------------------------------------------------------------------------------------------------------------------------------------------------------<<<
-                    level_complete()
+                        end_level = True
                         
         except:
            NameError
@@ -758,7 +767,10 @@ while not game_over:
         player_group.update()
         
         if end_level:
-            end_level = False
+            play_game = False
+            endlevel_button.draw(screen)
+            level_complete_text()
+            
             level_clear()   #clears the all sprites group
         
         

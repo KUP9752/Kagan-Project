@@ -66,6 +66,8 @@ class Player(pygame.sprite.Sprite):
 
     def get_key_state(self):
         return self.keycollected
+    def set_key_state(self, state):
+        self.keycollected =True
         
     def update(self):
         #------Level border collision logic
@@ -290,10 +292,10 @@ class Button():
 ##---------------------------------------------------------------------Functions/Procedures---------------------------------------------------------------------##
     
             
-def set_level_colour(num):
-    level_buttons[num].colour = YELLOW
-def reset_level_colour(num):
-    level_buttons[num].colour = ORANGE
+def set_level_colour(num, colour):
+    level_buttons[num].colour = colour
+def reset_level_colour(num, colour):
+    level_buttons[num].colour = colour
         
 def level_selector(num):
     num = int(num)
@@ -454,6 +456,11 @@ def level_complete_text():
     comptextRect = comptext.get_rect()
     comptextRect.center = (640,300)
     return screen.blit(comptext, comptextRect)
+
+def level_complete(level):
+    level = int(level) - 1
+    level_colour_data[level] = [GREEN, AQUA]
+    
     
 
         
@@ -566,8 +573,9 @@ play_game = False
 
 level_buttons = []
 level_x_places=[190,390,590,790,990,190,390,590,790,990]
-level_y_places=[260,260,260,260,260,460,460,460,460,460]
+level_y_places=[250,250,250,250,250,460,460,460,460,460]
 level_numbers = ['1','2','3','4','5','6','7','8','9','10']
+level_colour_data = [[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW]]
 level_running = False
 
 
@@ -578,12 +586,13 @@ playbutton = Button(RED, 540,150,200,100,PLAYfont,'PLAY')
 for counter in range(0,10):
     level_button = Button(ORANGE,level_x_places[counter], level_y_places[counter],100,100,PLAYfont,level_numbers[counter])
     level_buttons.append(level_button)
+
 pause_button = Button(BLUE,1060,600,200,100,bigfont,'PAUSE')
 pmenu_button = Button(ORANGE, 540, 250, 200, 50, font, 'MENU')
 plevel_button = Button(ORANGE,540,350, 200,50,font,'LEVELS')
 pquit_button = Button(RED, 540, 450, 200, 50, font, 'QUIT')
 
-endlevel_button = Button(ORANGE, 440, 500, 400, 50, font, 'Return to Menu')
+endlevel_button = Button(ORANGE, 440, 350, 400, 50, font, 'Return to Menu')
 
 # -- current_level //used later to determine which level is running
 
@@ -704,10 +713,10 @@ while not game_over:
                 
             for counter in range(0,10):
                 if play_game and level_buttons[counter].isOver(mouse_pos):
-                    set_level_colour(counter) #-calls procedure to change button hover colour
+                    set_level_colour(counter, level_colour_data[counter][1]) #-calls procedure to change button hover colour
                 elif play_game:
-                    reset_level_colour(counter) #-calls procedure that can revert the colour
-        if play_game and not(pause_menu) and event.type == pygame.MOUSEBUTTONDOWN:  #checks if a level is clicked
+                    reset_level_colour(counter, level_colour_data[counter][0]) #-calls procedure that can revert the colour
+        if play_game and not(pause_menu) and not end_level and event.type == pygame.MOUSEBUTTONDOWN:  #checks if a level is clicked
             for counter in range(0,10):
                 if level_buttons[counter].isOver(mouse_pos):
                     current_level =level_numbers[counter]
@@ -754,6 +763,7 @@ while not game_over:
         #checks whether the key has been collected to finish the level
             for item in exit_group:
                 if item.get_state() == 1:
+                    player.set_key_state(True)
                     key_col_text()
                     item.change_colour(GREEN)
                     exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)
@@ -770,7 +780,7 @@ while not game_over:
             play_game = False
             endlevel_button.draw(screen)
             level_complete_text()
-            
+            level_complete(current_level)
             level_clear()   #clears the all sprites group
         
         

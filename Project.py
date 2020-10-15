@@ -163,6 +163,13 @@ class Enemy3(Enemy):
         self.colour = ORANGE
         super().__init__(x, y, facing)
         
+    def update(self):
+        enemyobs_hit_group = pygame.sprite.groupcollide(enemy_group, enemyobs_group, False, False)
+        if self.direction_x != 0:
+            self.rect.x = self.rect.x + self.direction_x*self.speed
+        if self.direction_y != 0:
+            self.rect.y = self.rect.x + self.direction_y*self.speed
+        
         
 
         
@@ -793,6 +800,7 @@ while not game_over:
            NameError
         all_sprites_group.draw(screen)
         player_group.update()
+        enemy_group.update()
         
         if end_level:
             play_game = False

@@ -115,14 +115,23 @@ class Player(pygame.sprite.Sprite):
         
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, e_type, facing):
+    def __init__(self, x, y, facing):
         super().__init__()
-        self.colour = BLUE
-        self.type = e_type
+        
         self.facing = facing
         self.direction_x = 0
         self.direction_y = 0   #-1 in y is UP!
+
+                    
+        self.width = 20
+        self.height = 20
+        self.image = pygame.Surface([self.width,self.height])
+        self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
         
+        #all instances of enemies face different sides at the start
         if self.facing ==61:   #Facing up
             self.direction_y = -1
         elif self.facing ==62: #Facing Down
@@ -131,29 +140,30 @@ class Enemy(pygame.sprite.Sprite):
             self.direction_x = 1
         elif self.facing ==64:  #facing left
             self.direction_x = -1
-            
-        if self.type ==1:
-            self.speed = 0
-            self.colour = RED
-        elif self.type ==2:
-            self.speed = 0
-            self.colour = PINK
-        elif self.type == 3:
-            self.speed = 10
-            self.colour = ORANGE
-        self.width = 20
-        self.height = 20
-        self.image = pygame.Surface([self.width,self.height])
-        self.image.fill(self.colour)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
 
-##        def update(self):
-##            # - > movement for type 3 enemies
-##                
+#sub classes of enemies are the different types of enemies
             
-            
+class Enemy1(Enemy):
+    def __init__(self, x, y, facing):
+        self.speed = 0
+        self.colour = RED
+        super().__init__(x, y, facing)
+        
+
+class Enemy2(Enemy):
+    def __init__(self, x, y, facing):
+        self.speed = 0
+        self.colour = PINK
+        super().__init__(x, y, facing)
+        
+
+class Enemy3(Enemy):
+    def __init__(self, x, y, facing):
+        self.speed = 5
+        self.colour = ORANGE
+        super().__init__(x, y, facing)
+        
+        
 
         
 class EnemyObstacle(pygame.sprite.Sprite):
@@ -400,10 +410,17 @@ def create_key(x,y):
 
 def create_enemy(x,y,e_type,facing):
     global enemy
-    enemy = Enemy(x,y,e_type,facing)
+    
+    if e_type == 1:
+        enemy = Enemy1(x,y,facing)
+    elif e_type == 2:
+        enemy = Enemy2(x,y,facing)
+    elif e_type == 3:
+        enemy = Enemy3(x,y,facing)
+        
     enemy_group.add(enemy)
     all_sprites_group.add(enemy)
-                             
+        
 def create_enemyobstacle(x,y,facing):
     global enemy_obs
     enemy_obs = EnemyObstacle(x,y,facing)
@@ -545,6 +562,7 @@ all_sprites_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 
 enemy_group = pygame.sprite.Group()
+
 enemyobs_group = pygame.sprite.Group()
 
 obstacle_group = pygame.sprite.Group()

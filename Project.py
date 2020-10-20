@@ -48,7 +48,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self,colour,x,y):
         super().__init__()
         self.keycollected = False
-        self.speed =10
+        self.speed =5
         self.direction_x =0
         self.direction_y =0
         self.colour = colour

@@ -70,7 +70,7 @@ class Player(pygame.sprite.Sprite):
         self.keycollected =True
         
     def update(self):
-        #------Level border collision logic
+        #------Level border collision logic and movement
         if (self.rect.x>=0 and self.rect.x<=980) and (self.rect.y >=0 and self.rect.y<=700):
             self.rect.x = self.rect.x + self.direction_x*self.speed
             self.rect.y = self.rect.y + self.direction_y*self.speed
@@ -141,6 +141,23 @@ class Enemy(pygame.sprite.Sprite):
         elif self.facing ==64:  #facing left
             self.direction_x = -1
 
+    def update(self):
+        if self.speed !=0:
+            if self.direction_x != 0:
+                self.rect.x += self.direction_x*self.speed
+            if self.direction_y != 0:
+                self.rect.y += self.direction_y*self.speed
+                
+            enemyobs_hit_group = pygame.sprite.spritecollide(self, enemyobs_group, False)
+            for elem in enemyobs_hit_group:
+                if enemyobs_hit_group[0].get_direction_y == 0 and enemyobs_hit_group[0].get_direction_x == 0:
+                    self.rect.x -= self.direction_x*self.speed
+                elif enemyobs_hit_group[0].get_direction_y != 0:
+                    self.direction_y = enemyobs_hit_group[0].get_direction_y
+                elif enemyobs_hit_group[0].get_direction_x != 0:
+                    self.direction_x = enemyobs_hit_group[0].get_direction_x
+
+
 #sub classes of enemies are the different types of enemies
             
 class Enemy1(Enemy):
@@ -162,13 +179,7 @@ class Enemy3(Enemy):
         self.speed = 5
         self.colour = ORANGE
         super().__init__(x, y, facing)
-        
-    def update(self):
-        enemyobs_hit_group = pygame.sprite.groupcollide(enemy_group, enemyobs_group, False, False)
-        if self.direction_x != 0:
-            self.rect.x = self.rect.x + self.direction_x*self.speed
-        if self.direction_y != 0:
-            self.rect.y = self.rect.x + self.direction_y*self.speed
+    
         
         
 
@@ -200,6 +211,13 @@ class EnemyObstacle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        
+    def get_direction_x(self):
+        return self.direction_x
+    
+    def get_direction_y(self):
+        return self.direction_y
+        
 
         
 class Obstacle(pygame.sprite.Sprite):

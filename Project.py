@@ -153,6 +153,14 @@ class Enemy(pygame.sprite.Sprite):
             for elem in enemyobs_hit_group:
                 self.rect.x -= self.speed*self.direction_x
                 self.rect.y -=self.speed*self.direction_y
+                if self.direction_x ==0:
+
+                    #doesnt work!!
+                    self.direction_x = -1*(self.direction_y)
+                    self.direction_y = 0
+                elif self.direction_y == 0:
+                    self.direction_y = -1*(self.direction_x)
+                    self.direction_x = 0
         
 ##            for item in enemyobs_group:
 ##                print(item)

@@ -149,13 +149,28 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect.y += self.direction_y*self.speed
                 
             enemyobs_hit_group = pygame.sprite.spritecollide(self, enemyobs_group, False)
+            print(enemyobs_hit_group)
             for elem in enemyobs_hit_group:
-                if enemyobs_hit_group[0].get_direction_y == 0 and enemyobs_hit_group[0].get_direction_x == 0:
-                    self.rect.x -= self.direction_x*self.speed
-                elif enemyobs_hit_group[0].get_direction_y != 0:
-                    self.direction_y = enemyobs_hit_group[0].get_direction_y
-                elif enemyobs_hit_group[0].get_direction_x != 0:
-                    self.direction_x = enemyobs_hit_group[0].get_direction_x
+                self.rect.x -= self.speed*self.direction_x
+                self.rect.y -=self.speed*self.direction_y
+        
+##            for item in enemyobs_group:
+##                print(item)
+##                print(item.get_direction_y)
+##                if pygame.sprite.collide_rect(self, item):
+##                    
+##                    if int(item.get_direction_y) !=0:
+##                        self.direction_y = int(item.get_direction_y)
+##                    elif int(item.get_direction_x) != 0:
+##                        self.direction_x = int(item.get_direction_x)
+                        
+                    
+                
+                
+##                if enemyobs_hit_group[0].get_direction_y != 0:
+##                    self.direction_y = int(enemyobs_hit_group[0].get_direction_y)
+##                elif enemyobs_hit_group[0].get_direction_x != 0:
+##                    self.direction_x = int(enemyobs_hit_group[0].get_direction_x)
 
 
 #sub classes of enemies are the different types of enemies

@@ -48,7 +48,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self,colour,x,y):
         super().__init__()
         self.keycollected = False
-        self.speed =5
+        self.colenemy = False   #Boolean variable to hold whether the player has collided with any enemies
+        self.speed = 15
         self.direction_x =0
         self.direction_y =0
         self.colour = colour
@@ -68,6 +69,10 @@ class Player(pygame.sprite.Sprite):
         return self.keycollected
     def set_key_state(self, state):
         self.keycollected =True
+    def get_colenemy_state(self):
+        return self.colenemy
+    def set_colenemy_state(self, state):
+        self.colenemy = state
         
     def update(self):
         #------Level border collision logic and movement
@@ -96,7 +101,10 @@ class Player(pygame.sprite.Sprite):
             if not self.get_key_state():
                 no_key_text()
                 
-                
+        # ------- Enemy block collision
+        enemybody_hit_group = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
+        for elem in enemybody_hit_group:
+            self.colenemy = True
         # ------Key Collection Logic (opens the gate)
         key_hit_group = pygame.sprite.groupcollide(player_group,key_group,False,True)
         for elem in key_hit_group:
@@ -105,10 +113,10 @@ class Player(pygame.sprite.Sprite):
                 self.key_collected = True
                 
         # -> additional logic of collection indicator in the info menu can be added
-            #Wirtten later in the code where the text displaying logic is
+            #---Wirtten later in the code where the text displaying logic is
         
         # -> Logic for finishing a level after the key is collected
-        
+            # --- Also added later on in the code, using a text function.
 
                 
                 
@@ -149,18 +157,61 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect.y += self.direction_y*self.speed
                 
             enemyobs_hit_group = pygame.sprite.spritecollide(self, enemyobs_group, False)
-            print(enemyobs_hit_group)
+            
             for elem in enemyobs_hit_group:
                 self.rect.x -= self.speed*self.direction_x
                 self.rect.y -=self.speed*self.direction_y
-                if self.direction_x ==0:
+                self.direction_x = elem.get_direction_x()
+                self.direction_y = elem.get_direction_y()
 
-                    #doesnt work!!
-                    self.direction_x = -1*(self.direction_y)
-                    self.direction_y = 0
-                elif self.direction_y == 0:
-                    self.direction_y = -1*(self.direction_x)
-                    self.direction_x = 0
+
+
+                # --------------------------------------Useless movement logic using try-except clause with exception classes
+                
+##            for elem in enemyobs_hit_group:
+##                self.rect.x -= self.speed*self.direction_x
+##                self.rect.y -=self.speed*self.direction_y
+##
+##                if self.direction_x ==0:
+##                    self.direction_y = 0
+##                    try:
+##                        self.direction_x = 1
+##                        enemyobs_hit_group= pygame.sprite.spritecollide(self, enemyobs_group, False)
+##                        if len(enemyobs_hit_group)>0:
+##                            raise WrongDirectionError_x
+##                    except WrongDirectionError_x:
+##                        self.direction_x = -1
+##                        
+##                elif self.direction_y == 0:
+##                    self.direction_x = 0
+##                    try:
+##                        self.direction_y = 1
+##                        enemyobs_hit_group = pygame.sprite.spritecollide(self,enemyobs_group,False)
+##                        if len(enemyobs_hit_group)>0:
+##                            raise WrongDirectionError_y
+##                    except WrongDirectionError_y:
+##                        self.direction_y = -1
+##                 
+##               elif self.direction_x ==1 and self.direction_y ==0:
+##                    self.direction_y = 0
+##                    try:
+##                        self.direction_x = 1
+##                        enemyobs_hit_group= pygame.sprite.spritecollide(self, enemyobs_group, False)
+##                        if len(enemyobs_hit_group)>0:
+##                            raise WrongDirectionError_x
+##                    except WrongDirectionError_x:
+##                        self.direction_x = -1
+##                        
+##                elif self.direction_y == 0:
+##                    self.direction_x = 0
+##                    try:
+##                        self.direction_y = 1
+##                        enemyobs_hit_group = pygame.sprite.spritecollide(self,enemyobs_group,False)
+##                        if len(enemyobs_hit_group)>0:
+##                            raise WrongDirectionError_y
+##                    except WrongDirectionError_y:
+##                        self.direction_y = -1
+                        
         
 ##            for item in enemyobs_group:
 ##                print(item)
@@ -294,7 +345,7 @@ class Exit(pygame.sprite.Sprite):
         #state = 0 -> exit is closed
         #state = 1 -> exit is open
         
-        
+
         
 class Button():
     def __init__(self, colour, x,  y,width,height,font, text=''):
@@ -345,6 +396,16 @@ class Button():
 ##
 ##        #cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
 ##
+
+    ##-------------Error class and subclasses I am going to be using in a try clause to guess the new available square for the Enemy3s to move
+
+class MovementError(Exception):
+    pass
+class WrongDirectionError_x(MovementError):
+    pass
+class WrongDirectionError_y(MovementError):
+    pass
+    
 
     
 ##---------------------------------------------------------------------Functions/Procedures---------------------------------------------------------------------##
@@ -473,7 +534,7 @@ def create_enemyobstacle(x,y,facing):
     global enemy_obs
     enemy_obs = EnemyObstacle(x,y,facing)
     enemyobs_group.add(enemy_obs)
-    all_sprites_group.add(enemy_obs)
+    #all_sprites_group.add(enemy_obs)
 
 
 
@@ -525,7 +586,14 @@ def level_complete_text():
 def level_complete(level):
     level = int(level) - 1
     level_colour_data[level] = [GREEN, AQUA]
-    
+
+def level_failed_text():
+    global failedtext
+    global failedtextRect
+    failedtext = bigfont.render('Level Failed!', False, RED)
+    failedtextRect = failedtext.get_rect()
+    failedtextRect.center = (640, 300)
+    return screen.blit(failedtext, failedtextRect)
     
 
         
@@ -647,6 +715,7 @@ level_running = False
 
 end_level = False
 pause_menu = False
+level_failed = False
 ### -----------------------------------------------------------------Constant Buttons-------------------------------------------------------------------------------###
 playbutton = Button(RED, 540,150,200,100,PLAYfont,'PLAY')
 for counter in range(0,10):
@@ -659,6 +728,8 @@ plevel_button = Button(ORANGE,540,350, 200,50,font,'LEVELS')
 pquit_button = Button(RED, 540, 450, 200, 50, font, 'QUIT')
 
 endlevel_button = Button(ORANGE, 440, 350, 400, 50, font, 'Return to Menu')
+
+level_failed_button = Button(RED, 440, 350, 400, 50, font, 'Restart')
 
 # -- current_level //used later to determine which level is running
 
@@ -733,6 +804,11 @@ while not game_over:
                 level_running = False
                 play_game = True
                 end_level = False
+            if level_failed and level_failed_button.isOver(mouse_pos):
+                print('restart level is clicked, after level failure')
+
+                level_failed = False
+                level_selector(current_level)
                 
         #checks if the PLAY button is clicked and creates the level buttons
             
@@ -775,6 +851,10 @@ while not game_over:
                 pquit_button.colour = PINK
             else:
                 pquit_button.colour = RED
+            if level_failed_button.isOver(mouse_pos):
+                level_failed_button.colour = GREEN
+            else:
+                level_failed_button.colour = RED
 
                 
             for counter in range(0,10):
@@ -827,6 +907,8 @@ while not game_over:
         try:
             screen.blit(leveltext,leveltextRect)
         #checks whether the key has been collected to finish the level
+            if player.get_colenemy_state() == True:
+                level_failed = True
             for item in exit_group:
                 if item.get_state() == 1:
                     player.set_key_state(True)
@@ -843,6 +925,13 @@ while not game_over:
         player_group.update()
         enemy_group.update()
         
+        if level_failed:
+            
+            level_failed_text()
+            player.set_colenemy_state(False)
+            level_clear()
+            level_failed_button.draw(screen)
+            
         if end_level:
             play_game = False
             endlevel_button.draw(screen)

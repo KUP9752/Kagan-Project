@@ -67,7 +67,7 @@ class Player(pygame.sprite.Sprite):
 
     def get_key_state(self):
         return self.keycollected
-    def set_key_state(self, state):
+    def set_key_state(self):
         self.keycollected =True
     def get_colenemy_state(self):
         return self.colenemy
@@ -911,7 +911,7 @@ while not game_over:
                 level_failed = True
             for item in exit_group:
                 if item.get_state() == 1:
-                    player.set_key_state(True)
+                    player.set_key_state()
                     key_col_text()
                     item.change_colour(GREEN)
                     exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)

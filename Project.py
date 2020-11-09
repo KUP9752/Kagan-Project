@@ -49,7 +49,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.keycollected = False
         self.colenemy = False   #Boolean variable to hold whether the player has collided with any enemies
-        self.speed = 15
+        self.speed = 5
         self.direction_x =0
         self.direction_y =0
         self.colour = colour
@@ -250,7 +250,7 @@ class Enemy2(Enemy):
 
 class Enemy3(Enemy):
     def __init__(self, x, y, facing):
-        self.speed = 5
+        self.speed = 2
         self.colour = ORANGE
         super().__init__(x, y, facing)
     

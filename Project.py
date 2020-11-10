@@ -149,20 +149,7 @@ class Enemy(pygame.sprite.Sprite):
         elif self.facing ==64:  #facing left
             self.direction_x = -1
 
-    def update(self):
-        if self.speed !=0:
-            if self.direction_x != 0:
-                self.rect.x += self.direction_x*self.speed
-            if self.direction_y != 0:
-                self.rect.y += self.direction_y*self.speed
-                
-            enemyobs_hit_group = pygame.sprite.spritecollide(self, enemyobs_group, False)
-            
-            for elem in enemyobs_hit_group:
-                self.rect.x -= self.speed*self.direction_x
-                self.rect.y -=self.speed*self.direction_y
-                self.direction_x = elem.get_direction_x()
-                self.direction_y = elem.get_direction_y()
+
 
 
 
@@ -253,6 +240,20 @@ class Enemy3(Enemy):
         self.speed = 2
         self.colour = ORANGE
         super().__init__(x, y, facing)
+        
+    def update(self):
+        if self.direction_x != 0:
+            self.rect.x += self.direction_x*self.speed
+        if self.direction_y != 0:
+            self.rect.y += self.direction_y*self.speed
+            
+        enemyobs_hit_group = pygame.sprite.spritecollide(self, enemyobs_group, False)
+        
+        for elem in enemyobs_hit_group:
+            self.rect.x -= self.speed*self.direction_x
+            self.rect.y -=self.speed*self.direction_y
+            self.direction_x = elem.get_direction_x()
+            self.direction_y = elem.get_direction_y()
     
         
         

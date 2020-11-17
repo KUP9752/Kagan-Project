@@ -696,15 +696,15 @@ exit_group = pygame.sprite.Group()
 
     
 ##  --  Button/Cursor Sprites and Groups --  ##
-##cursor_group = pygame.sprite.Group()
-##cursor = Cursor(WHITE, 500, 500)
-##cursor_group.add(cursor)
+cursor_group = pygame.sprite.Group()
+cursor = Cursor(WHITE, 500, 500)
+cursor_group.add(cursor)
     
 
-##button_group = pygame.sprite.Group()
-##button_group.add(playbutton)
+#button_group = pygame.sprite.Group()
+#button_group.add(playbutton)
 
-##cursorbutton_hit_group = pygame.sprite.Group()
+cursorbutton_hit_group = pygame.sprite.Group()
 
 ##---------------------------------------------------------------------Variables---------------------------------------------------------------------##
 game_over = False
@@ -741,7 +741,7 @@ level_failed_button = Button(RED, 440, 350, 400, 50, font, 'Restart')
 ##                                                                                       _________             
 ##______________________________________________________________________________________/GAME LOOP\_____________________________________________________________________________________________________##
 while not game_over:
-    
+
     for event in pygame.event.get():
         mouse_pos = pygame.mouse.get_pos()
         
@@ -886,8 +886,8 @@ while not game_over:
 
     
     screen.fill(BLACK)        
-##    cursor_group.update()
-##    cursor_group.draw(screen)
+    cursor_group.update()
+    cursor_group.draw(screen)
 
 
 
@@ -901,7 +901,8 @@ while not game_over:
             
     if not level_running and not pause_menu:   #-whether a level is running
         if not play_game and not end_level:   #-nothing runnnig displays title screen
-            playbutton.draw(screen)
+            #playbutton.draw(screen)
+            x=1
         if play_game:       #-play pressed into level screen
             level_menu_title()
             for counter in range(0,10):
@@ -929,6 +930,7 @@ while not game_over:
         all_sprites_group.draw(screen)
         player_group.update()
         enemy_group.update()
+        
         
         if level_failed:
             

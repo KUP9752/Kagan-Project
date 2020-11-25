@@ -237,7 +237,7 @@ class Enemy2(Enemy):
 
 class Enemy3(Enemy):
     def __init__(self, x, y, facing):
-        self.speed = 2
+        self.speed = 0                                  #!!!!!!!!!!!!! speed = 2 when movement is needed
         self.colour = ORANGE
         super().__init__(x, y, facing)
         
@@ -265,7 +265,8 @@ class EnemyObstacle(pygame.sprite.Sprite):
         self.facing = facing
         self.direction_y = 0
         self.direction_x = 0
-        self.colour = PURPLE    #purple is the original colour the blocks with rotation have white colour
+        self.colour = PURPLE    #purple is the original colour
+                                #the blocks with rotation have white colour
         if self.facing ==91:        #UP
             self.direction_y =-1
             self.colour = WHITE
@@ -493,8 +494,6 @@ def map_creator(layout):
 ###----------------------- Sprite Creation -----------------------------###
 def create_player(x,y):
     global player
-    global player_group
-    global all_sprites_group
     player_group.empty()    # -- there can only be 1 player at one time!
     player = Player(BLUE,x,y)
     player_group.add(player)
@@ -535,7 +534,8 @@ def create_enemyobstacle(x,y,facing):
     global enemy_obs
     enemy_obs = EnemyObstacle(x,y,facing)
     enemyobs_group.add(enemy_obs)
-    #all_sprites_group.add(enemy_obs)
+    all_sprites_group.add(enemy_obs)    #----!!!!!line should be hashed so that the enemyobs are not visible to the user
+    
 
 
 
@@ -601,10 +601,15 @@ def level_failed_text():
 ###------------------------------------Level Creation---------------------------------###
 def level_1(num):
     leveltext_creator(num)
-    create_player(500,500)
+    create_player(300,500)
     create_obstacle(100, 100, 100, 200)
     create_key(300,300)
     create_exit(500,0,200,50)
+    create_enemy(400, 400,1,61)
+    create_enemy(500, 500,2,61)
+    create_enemy(600, 600,3,61)
+    create_enemyobstacle(600,300,92) #has direction direction
+    create_enemyobstacle(700,300,0) #normal enemyobstacle object
 
     
 def level_2(num):

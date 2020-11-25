@@ -123,10 +123,10 @@ class Player(pygame.sprite.Sprite):
         
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, facing):
+    def __init__(self, x, y,e_type):
         super().__init__()
+        self.colour = BLUE
         
-        self.facing = facing
         self.direction_x = 0
         self.direction_y = 0   #-1 in y is UP!
 
@@ -139,15 +139,15 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         
-        #all instances of enemies face different sides at the start
-        if self.facing ==61:   #Facing up
-            self.direction_y = -1
-        elif self.facing ==62: #Facing Down
-            self.direction_y = 1
-        elif self.facing == 63: #facing right
-            self.direction_x = 1
-        elif self.facing ==64:  #facing left
-            self.direction_x = -1
+        if e_type == 1:
+            self.speed = 0
+            self.colour =RED
+        elif e_type == 2:
+            self.speed = 0
+            self.colour = PINK
+        elif e_type == 3:
+            self.speed = 10
+            self.colour = ORANGE
 
 
 
@@ -266,16 +266,16 @@ class EnemyObstacle(pygame.sprite.Sprite):
         self.direction_y = 0
         self.direction_x = 0
         self.colour = PURPLE    #purple is the original colour the blocks with rotation have white colour
-        if self.facing ==91:        #UP
+        if self.facing ==1:        #UP
             self.direction_y =-1
             self.colour = WHITE
-        elif self.facing ==92:      #DOWN
+        elif self.facing ==2:      #DOWN
             self.direction_y = 1
             self.colour = WHITE
-        elif self.facing == 93:     #RIGHT
+        elif self.facing == 3:     #RIGHT
             self.direction_x = 1
             self.colour = WHITE
-        elif self.facing == 94:     #LEFT
+        elif self.facing == 4:     #LEFT
             self.direction_x = -1
             self.colour = WHITE
         
@@ -456,42 +456,60 @@ def level_clear():                  #clears all the sprite groups
 def map_creator(layout):
     for y in range(len(layout)):
         for x in range(len(layout[y])):
-            
             if layout[y][x] == 1:
                 #places obstacle (followed +2 with width and height)
-                create_obstacle(x*10,y*10,int(layout[y][x+1]),int(layout[y][x+2]))
+                create_obstacle(x*10, y*10, 10, 10) #Width and the height is set to 10,10
+                                                     # because every element in the list corresponds to that size
+                
                 
             elif layout[y][x] == 2:
                 #player spawn
                 create_player(x*10,y*10)
                 
             elif layout[y][x] == 3:
-                #places exit (+2 for w and h)
-                create_exit(x*10,y*10,int(layout[y][x+1]),int(layout[y][x+2]))
-                
+                #places enemy1
+                create_enemy(x*10,y*10,1,0)   #direction is set to 0 becasue the layout of the json file doesn't
+                                                #provide any information about which way an emeny is facing
             elif layout[y][x] == 4:
-                #places key
-                create_key(x*10,y*10)
+                #places enemy2
+                create_enemy(x*10,y*10,2,0)   #direction is set to 0 becasue the layout of the json file doesn't
+                                                #provide any information about which way an emeny is facing 
+            elif layout[y][x] == 5:
+                #places enemy3
+                create_enemy(x*10,y*10,3,0)   #direction is set to 0 becasue the layout of the json file doesn't
+                                                #provide any information about which way an emeny is facing
                 
-##            if layout[y][x] == 5:
-##                # 5 IS NOT DEFINED IN THE MAP CREATION KEY
+            elif layout[y][x] == 6:           
+                #palces exitblock
+                create_exit(x*10, y*10)
                 
-            elif layout[y][x] == 6:           #--- *1 = up, *2 = down, *3= right, *4 = left ---#
-                #enemy type 1 (followed by +1 orientation)
-
-                create_enemy(x*10,y*10,1, int(layout[y][x+1]))
                 
             elif layout[y][x] == 7:
-                #enemy type 2 (followed by +1 orientation)
-                create_enemy(x*10,y*10,2,int(layout[y][x+1]))
+                #places key
+                create_key(x*10, y*10)                
                 
             elif layout[y][x] == 8:
-                #enemy type 3 (+1 orientation)
-                create_enemy(x*10,y*10,3,int(layout[y][x+1]))
-                
+                #places enemy obstacle
+                create_enemyobstacle(x*10,y*10,0) #facing = 0, hence it is a enemy obstacle wihout rotation
+
             elif layout[y][x] == 9 :
-                #enemy obstacle (+1 rotation)
-                create_enemyobstacle(x*10,y*10,int(layout[y][x+1]))
+                #places enemy obstacle(up)
+                create_enemyobstacle(x*10,y*10,1) #facing =1 for rotation up
+                       
+
+            elif layout[y][x] == 10:
+                #places enemy obstacle(down)
+                create_enemyobstacle(x*10,y*10,2) #facing =2 for rotation down
+                
+                
+            elif layout[y][x] == 11:
+                #places enemy obstacle(right)
+                create_enemyobstacle(x*10,y*10,3) #facing =3 for rotation right
+                
+                
+            elif layout[y][x] == 12:
+                #placesenemy obstacle (left)
+                create_enemyobstacle(x*10,y*10,4) #facing =4 for rotation down
 
                 
 ###----------------------- Sprite Creation -----------------------------###
@@ -603,6 +621,14 @@ def level_failed_text():
 
         
 ###------------------------------------Level Creation---------------------------------###
+
+def level_0(num):
+    print('level 0')
+    level_file = open('levels/initial level.json','rt')
+    layout = json.load(level_file)
+    level_file.close()
+    map_creator(layout)
+                
 def level_1(num):
     leveltext_creator(num)
     create_player(500,500)
@@ -626,8 +652,6 @@ def level_3(num):
     layout = json.load(level_file)
     level_file.close()
     map_creator(layout)
-
-
 
     
 def level_4(num):
@@ -692,11 +716,12 @@ key_group = pygame.sprite.Group()
 
 exit_group = pygame.sprite.Group()
 
+cursor_group = pygame.sprite.Group()
 
 
     
 ##  --  Button/Cursor Sprites and Groups --  ##
-cursor_group = pygame.sprite.Group()
+
 cursor = Cursor(WHITE, 500, 500)
 cursor_group.add(cursor)
     

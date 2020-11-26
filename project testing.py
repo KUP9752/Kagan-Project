@@ -370,7 +370,7 @@ class Button(pygame.sprite.Sprite):
         
         if self.text != '':
             
-            text = PLAYfont.render(self.text, 1, BLACK)
+            text = self.font.render(self.text, 1, BLACK)
             screen.blit(text, (self.rect.x + (self.width/2 - text.get_width()/2), self.rect.y + (self.height/2 - text.get_height()/2)))
 
     def isOver(self, pos):

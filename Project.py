@@ -358,11 +358,12 @@ class Button():
         self.text = text
         self.x = x
         self.y = y
+        
     def set_text(self,value):
         self.text = value
 
     def draw(self,screen,outline=None):
-        #Call this method to draw the button on the screen
+        #Method to draw the button and its text onto the screen
         if outline:
             pygame.draw.rect(screen, outline, (self.x-2,self.y-2,self.width+4,self.height+4),0)
             
@@ -370,7 +371,7 @@ class Button():
         
         if self.text != '':
             
-            text = PLAYfont.render(self.text, 1, BLACK)
+            text = self.font.render(self.text, 1, BLACK)
             screen.blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
 
     def isOver(self, pos):
@@ -731,11 +732,11 @@ for counter in range(0,10):
 pause_button = Button(BLUE,1060,600,200,100,bigfont,'PAUSE')
 pmenu_button = Button(ORANGE, 540, 250, 200, 50, font, 'MENU')
 plevel_button = Button(ORANGE,540,350, 200,50,font,'LEVELS')
-pquit_button = Button(RED, 540, 450, 200, 50, font, 'QUIT')
+pquit_button = Button(RED, 540, 450, 200, 50, bigfont, 'QUIT')
 
-endlevel_button = Button(ORANGE, 440, 350, 400, 50, font, 'Return to Menu')
+endlevel_button = Button(ORANGE, 440, 350, 400, 50, bigfont, 'Return to Menu')
 
-level_failed_button = Button(RED, 440, 350, 400, 50, font, 'Restart')
+level_failed_button = Button(RED, 440, 350, 400, 50, bigfont, 'Restart')
 
 # -- current_level //used later to determine which level is running
 

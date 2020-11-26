@@ -348,30 +348,30 @@ class Exit(pygame.sprite.Sprite):
         
 
         
-class Button():
+class Button(pygame.sprite.Sprite):
     def __init__(self, colour, x,  y,width,height,font, text=''):
         self.colour = colour
         self.width = width
         self.height = height
+        self.image = pygame.Surface([self.width,self.height])
+        self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
         self.font = font
         self.text = text
-        self.x = x
-        self.y = y
+        self.rect.x = x
+        self.rect.y = y
         
     def set_text(self,value):
         self.text = value
 
     def draw(self,screen,outline=None):
-        #Call this method to draw the button on the screen
-        if outline:
-            pygame.draw.rect(screen, outline, (self.x-2,self.y-2,self.width+4,self.height+4),0)
-            
+        #Method to draw the button and its text onto the screen
         pygame.draw.rect(screen, self.colour, (self.x,self.y,self.width,self.height),0)
         
         if self.text != '':
             
             text = PLAYfont.render(self.text, 1, BLACK)
-            screen.blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
+            screen.blit(text, (self.rect.x + (self.width/2 - text.get_width()/2), self.rect.y + (self.height/2 - text.get_height()/2)))
 
     def isOver(self, pos):
         if pos[0] > self.x and pos[0] < self.x + self.width:
@@ -396,7 +396,9 @@ class Cursor(pygame.sprite.Sprite):
         self.rect.x = mouse_pos[0] -2
         self.rect.y = mouse_pos[1] -2
 
-        #cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
+        cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
+        for item in cursorbutton_hit_group:
+            
 
 
     ##-------------Error class and subclasses I am going to be using in a try clause to guess the new available square for the Enemy3s to move

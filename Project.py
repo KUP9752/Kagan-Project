@@ -104,11 +104,14 @@ class Player(pygame.sprite.Sprite):
         # ------- Enemy block collision
         enemybody_hit_group = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
         for elem in enemybody_hit_group:
+            print('collided with enemy')
             self.colenemy = True
+            
         # ------Key Collection Logic (opens the gate)
         key_hit_group = pygame.sprite.groupcollide(player_group,key_group,False,True)
         for elem in key_hit_group:
             for item in exit_group:
+                print('key collected')
                 item.state_change(1)
                 self.key_collected = True
                 
@@ -541,7 +544,7 @@ def create_enemyobstacle(x,y,facing):
 
 
     
-###--------------------------------------------Text Creation----------------------------------###
+###--------------------------------------------Text Boxes/Text Creator Functions----------------------------------###
 def leveltext_creator(num):
     global leveltext
     global leveltextRect
@@ -601,6 +604,7 @@ def level_failed_text():
         
 ###------------------------------------Level Creation---------------------------------###
 def level_1(num):
+    print('level 1 - Test Level')
     leveltext_creator(num)
     create_player(300,500)
     create_obstacle(100, 100, 100, 200)

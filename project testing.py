@@ -105,12 +105,13 @@ class Player(pygame.sprite.Sprite):
         enemybody_hit_group = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
         for elem in enemybody_hit_group:
             self.colenemy = True
+            
         # ------Key Collection Logic (opens the gate)
         key_hit_group = pygame.sprite.groupcollide(player_group,key_group,False,True)
         for elem in key_hit_group:
-            for item in exit_group:
-                item.state_change(1)
-                self.key_collected = True
+            #for item in exit_group:
+                #item.state_change(1)
+            self.key_collected = True
                 
         # -> additional logic of collection indicator in the info menu can be added
             #---Wirtten later in the code where the text displaying logic is
@@ -396,8 +397,8 @@ class Cursor(pygame.sprite.Sprite):
         self.rect.x = mouse_pos[0] -2
         self.rect.y = mouse_pos[1] -2
 
-        cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
-        for item in cursorbutton_hit_group:
+        #cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
+        #for item in cursorbutton_hit_group:
             
 
 

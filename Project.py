@@ -453,7 +453,9 @@ def level_clear():                  #clears all the sprite groups
     enemyobs_group.empty()
     key_group.empty()
     exit_group.empty()
+    
 
+    
 def map_creator(layout):
     for y in range(len(layout)):
         for x in range(len(layout[y])):
@@ -494,115 +496,13 @@ def map_creator(layout):
                 #enemy obstacle (+1 rotation)
                 create_enemyobstacle(x*10,y*10,int(layout[y][x+1]))
 
-                
-###----------------------- Sprite Creation -----------------------------###
-def create_player(x,y):
-    global player
-    player_group.empty()    # -- there can only be 1 player at one time!
-    player = Player(BLUE,x,y)
-    player_group.add(player)
-    all_sprites_group.add(player)
-    
-def create_obstacle(x,y,w,h):
-    global obstacle
-    obstacle = Obstacle(x,y,w,h)
-    obstacle_group.add(obstacle)
-    all_sprites_group.add(obstacle)
-
-def create_exit(x,y,w,h):
-    global exit_
-    exitblock = Exit(x,y,w,h)
-    exit_group.add(exitblock)
-    all_sprites_group.add(exitblock)
-
-def create_key(x,y):
-    global key
-    key = Key(x,y)
-    key_group.add(key)
-    all_sprites_group.add(key)
-
-def create_enemy(x,y,e_type,facing):
-    global enemy
-    
-    if e_type == 1:
-        enemy = Enemy1(x,y,facing)
-    elif e_type == 2:
-        enemy = Enemy2(x,y,facing)
-    elif e_type == 3:
-        enemy = Enemy3(x,y,facing)
-        
-    enemy_group.add(enemy)
-    all_sprites_group.add(enemy)
-        
-def create_enemyobstacle(x,y,facing):
-    global enemy_obs
-    enemy_obs = EnemyObstacle(x,y,facing)
-    enemyobs_group.add(enemy_obs)
-    all_sprites_group.add(enemy_obs)    #----!!!!!line should be hashed so that the enemyobs are not visible to the user
-    
-
-
-
-    
-###--------------------------------------------Text Boxes/Text Creator Functions----------------------------------###
-def leveltext_creator(num):
-    global leveltext
-    global leveltextRect
-    leveltext = bigfont.render('LEVEL '+ str(num),False, PURPLE)
-    leveltextRect = leveltext.get_rect()
-    leveltextRect.center = (1150,50)
-    
-def pause_menu_title():
-    pausetext = bigfont.render('Pause Menu',False, BLUE)
-    pausetextRect = pausetext.get_rect()
-    pausetextRect.center = (640,200)
-    return screen.blit(pausetext, pausetextRect)
-
-def level_menu_title():
-    leveltitle = bigfont.render('Level Menu',False,BLUE)
-    leveltitleRect = leveltitle.get_rect()
-    leveltitleRect.center = (640,200)
-    return screen.blit(leveltitle,leveltitleRect)
-
-def key_col_text():     #text to display when key is collected
-    global keytext
-    global keytextRect
-    keytext = font.render('Key Collected',False, YELLOW)
-    keytextRect = keytext.get_rect()
-    keytextRect.center = (1150,550)
-    return screen.blit(keytext, keytextRect)
-
-def no_key_text():      #text to display when the key is not collected but the user tries to leave thru the door
-    global nokeytext
-    global nokeytextRect
-    nokeytext = font.render('Key was not collected', False, RED)
-    nokeytextRect = nokeytext.get_rect()
-    nokeytextRect.center = (1150,550)
-    return screen.blit(nokeytext,nokeytextRect)
-
-def level_complete_text():
-    global comptext
-    global comptextRect
-    comptext = bigfont.render('Level Completed!',False,GREEN)
-    comptextRect = comptext.get_rect()
-    comptextRect.center = (640,300)
-    return screen.blit(comptext, comptextRect)
 
 def level_complete(level):
     level = int(level) - 1
     level_colour_data[level] = [GREEN, AQUA]
 
-def level_failed_text():
-    global failedtext
-    global failedtextRect
-    failedtext = bigfont.render('Level Failed!', False, RED)
-    failedtextRect = failedtext.get_rect()
-    failedtextRect.center = (640, 300)
-    return screen.blit(failedtext, failedtextRect)
-    
 
-        
-###------------------------------------Level Creation---------------------------------###
+###------------------------------------Level Creation Functions---------------------------------###
 def level_1(num):
     print('level 1 - Test Level')
     leveltext_creator(num)
@@ -682,6 +582,113 @@ def level_10(num):
 
 
 
+
+
+                
+###----------------------- Sprite Creation -----------------------------###
+def create_player(x,y):
+    global player
+    player_group.empty()    # -- there can only be 1 player at one time!
+    player = Player(BLUE,x,y)
+    player_group.add(player)
+    all_sprites_group.add(player)
+    
+def create_obstacle(x,y,w,h):
+    global obstacle
+    obstacle = Obstacle(x,y,w,h)
+    obstacle_group.add(obstacle)
+    all_sprites_group.add(obstacle)
+
+def create_exit(x,y,w,h):
+    global exit_
+    exitblock = Exit(x,y,w,h)
+    exit_group.add(exitblock)
+    all_sprites_group.add(exitblock)
+
+def create_key(x,y):
+    global key
+    key = Key(x,y)
+    key_group.add(key)
+    all_sprites_group.add(key)
+
+def create_enemy(x,y,e_type,facing):
+    global enemy
+    
+    if e_type == 1:
+        enemy = Enemy1(x,y,facing)
+    elif e_type == 2:
+        enemy = Enemy2(x,y,facing)
+    elif e_type == 3:
+        enemy = Enemy3(x,y,facing)
+        
+    enemy_group.add(enemy)
+    all_sprites_group.add(enemy)
+        
+def create_enemyobstacle(x,y,facing):
+    global enemy_obs
+    enemy_obs = EnemyObstacle(x,y,facing)
+    enemyobs_group.add(enemy_obs)
+    all_sprites_group.add(enemy_obs)    #----!!!!!line should be hashed so that the enemyobs are not visible to the user
+    
+
+
+
+    
+###--------------------------------------------Text Boxes/Text Creator Functions----------------------------------###
+def leveltext_creator(num):
+    global leveltext
+    global leveltextRect
+    leveltext = bigfont.render('LEVEL '+ str(num),True, PURPLE)
+    leveltextRect = leveltext.get_rect()
+    leveltextRect.center = (1150,50)
+    
+def pause_menu_title():
+    pausetext = bigfont.render('Pause Menu',True, BLUE)
+    pausetextRect = pausetext.get_rect()
+    pausetextRect.center = (640,200)
+    return screen.blit(pausetext, pausetextRect)
+
+def level_menu_title():
+    leveltitle = bigfont.render('Level Menu',True,BLUE)
+    leveltitleRect = leveltitle.get_rect()
+    leveltitleRect.center = (640,200)
+    return screen.blit(leveltitle,leveltitleRect)
+
+def key_col_text():     #text to display when key is collected
+    #global keytext
+    #global keytextRect
+    keytext = font.render('Key Collected',True, YELLOW)
+    keytextRect = keytext.get_rect()
+    keytextRect.center = (1150,550)
+    return screen.blit(keytext, keytextRect)
+
+def no_key_text():      #text to display when the key is not collected but the user tries to leave thru the door
+    global nokeytext
+    global nokeytextRect
+    nokeytext = font.render('Key was not collected', True, RED)
+    nokeytextRect = nokeytext.get_rect()
+    nokeytextRect.center = (1150,550)
+    return screen.blit(nokeytext,nokeytextRect)
+
+def level_complete_text():
+    global comptext
+    global comptextRect
+    comptext = bigfont.render('Level Completed!',True,GREEN)
+    comptextRect = comptext.get_rect()
+    comptextRect.center = (640,300)
+    return screen.blit(comptext, comptextRect)
+
+
+def level_failed_text():
+    global failedtext
+    global failedtextRect
+    failedtext = bigfont.render('Level Failed!', True, RED)
+    failedtextRect = failedtext.get_rect()
+    failedtextRect.center = (640, 300)
+    return screen.blit(failedtext, failedtextRect)
+    
+
+        
     
 ##---------------------------------------------------------------------Sprite groups and Sprite Initiation---------------------------------------------------------------------##
 all_sprites_group = pygame.sprite.Group()
@@ -870,9 +877,11 @@ while not game_over:
                 
             for counter in range(0,10):
                 if play_game and level_buttons[counter].isOver(mouse_pos):
+
                     set_level_colour(counter, level_colour_data[counter][1]) #-calls procedure to change button hover colour
+                                        
                 elif play_game:
-                    reset_level_colour(counter, level_colour_data[counter][0]) #-calls procedure that can revert the colour
+                    set_level_colour(counter, level_colour_data[counter][0]) #-calls procedure that can revert the colour
         if play_game and not(pause_menu) and not end_level and event.type == pygame.MOUSEBUTTONDOWN:  #checks if a level is clicked
             for counter in range(0,10):
                 if level_buttons[counter].isOver(mouse_pos):
@@ -881,7 +890,7 @@ while not game_over:
                     level_running = True
                     level_selector(current_level)
                     
-        
+
 
             
                     

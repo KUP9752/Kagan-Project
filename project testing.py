@@ -374,12 +374,21 @@ class Button(pygame.sprite.Sprite):
             text = self.font.render(self.text, 1, BLACK)
             screen.blit(text, (self.rect.x + (self.width/2 - text.get_width()/2), self.rect.y + (self.height/2 - text.get_height()/2)))
 
+            
+
     def isOver(self, pos):
         if pos[0] > self.x and pos[0] < self.x + self.width:
             if pos[1] > self.y and pos[1] < self.y + self.height:
                 return True
             
         return False
+
+    def set
+    
+    def set_level_colour(num, colour):
+    level_buttons[num].colour = colour
+def reset_level_colour(num, colour):
+    level_buttons[num].colour = colour
 
     
 class Cursor(pygame.sprite.Sprite):
@@ -419,10 +428,7 @@ class Cursor(pygame.sprite.Sprite):
 ##---------------------------------------------------------------------Functions/Procedures---------------------------------------------------------------------##
     
             
-def set_level_colour(num, colour):
-    level_buttons[num].colour = colour
-def reset_level_colour(num, colour):
-    level_buttons[num].colour = colour
+
         
 def level_selector(num):
     num = int(num)
@@ -894,7 +900,7 @@ while not game_over:
                 if play_game and level_buttons[counter].isOver(mouse_pos):
                     set_level_colour(counter, level_colour_data[counter][1]) #-calls procedure to change button hover colour
                 elif play_game:
-                    reset_level_colour(counter, level_colour_data[counter][0]) #-calls procedure that can revert the colour
+                    set_level_colour(counter, level_colour_data[counter][0]) #-calls procedure that can revert the colour
         if play_game and not(pause_menu) and not end_level and event.type == pygame.MOUSEBUTTONDOWN:  #checks if a level is clicked
             for counter in range(0,10):
                 if level_buttons[counter].isOver(mouse_pos):

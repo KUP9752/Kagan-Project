@@ -59,11 +59,6 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = x 
         self.rect.y = y
 
-    def set_direction_x(self,value):
-        self.direction_x = value
-
-    def set_direction_y(self,value):
-        self.direction_y = value
 
     def get_key_state(self):
         return self.keycollected
@@ -73,12 +68,27 @@ class Player(pygame.sprite.Sprite):
         return self.colenemy
     def set_colenemy_state(self, state):
         self.colenemy = state
+
         
+    #player movement methods
+    def go_up(self):
+        self.direction_y = self.speed*-1
+    def go_down(self):
+        self.direction_y = self.speed
+    def go_right(self):
+        self.direction_x = self.speed
+    def go_left(self):
+        self.direction_x =self.speed*-1
+    def stop_x(self):
+        self.direction_x = 0
+    def stop_y(self):
+        self.direction_y = 0
+    
     def update(self):
         #------Level border collision logic and movement
         if (self.rect.x>=0 and self.rect.x<=980) and (self.rect.y >=0 and self.rect.y<=700):
-            self.rect.x = self.rect.x + self.direction_x*self.speed
-            self.rect.y = self.rect.y + self.direction_y*self.speed
+            self.rect.x += self.direction_x
+            self.rect.y += self.direction_y
         if self.rect.x < 0:
             self.rect.x = 0
         if self.rect.x >980:
@@ -91,8 +101,8 @@ class Player(pygame.sprite.Sprite):
         
         obstacle_hit_group = pygame.sprite.groupcollide(player_group,obstacle_group,False,False)
         for player in obstacle_hit_group:
-            self.rect.x-= self.speed*self.direction_x
-            self.rect.y -=self.speed*self.direction_y
+            self.rect.x-= self.direction_x
+            self.rect.y -=self.direction_y
 
 
         # ------ Exit closed check
@@ -101,7 +111,7 @@ class Player(pygame.sprite.Sprite):
             if not self.get_key_state():
                 no_key_text()
                 
-        # ------- Enemy block collision
+        # ------- Enemy object collision
         enemybody_hit_group = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
         for elem in enemybody_hit_group:
             print('collided with enemy')
@@ -240,7 +250,7 @@ class Enemy2(Enemy):
 
 class Enemy3(Enemy):
     def __init__(self, x, y, facing):
-        self.speed = 0                                  #!!!!!!!!!!!!! speed = 2 when movement is needed
+        self.speed = 2                           #!!!!!!!!!!!!! speed = 1 when movement is needed
         self.colour = ORANGE
         super().__init__(x, y, facing)
         
@@ -662,7 +672,8 @@ def key_col_text():     #text to display when key is collected
     keytextRect.center = (1150,550)
     return screen.blit(keytext, keytextRect)
 
-def no_key_text():      #text to display when the key is not collected but the user tries to leave thru the door
+def no_key_text():      #text to display when the key is not
+                        #collected but the user tries to leave through the door
     global nokeytext
     global nokeytextRect
     nokeytext = font.render('Key was not collected', True, RED)
@@ -722,22 +733,24 @@ exit_group = pygame.sprite.Group()
 ##---------------------------------------------------------------------Variables---------------------------------------------------------------------##
 game_over = False
 play_game = False
+end_level = False
+pause_menu = False
+level_failed = False
+level_running = False
 
 level_buttons = []
 level_x_places=[190,390,590,790,990,190,390,590,790,990]
 level_y_places=[250,250,250,250,250,460,460,460,460,460]
 level_numbers = ['1','2','3','4','5','6','7','8','9','10']
 level_colour_data = [[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW],[ORANGE, YELLOW]]
-level_running = False
 
 
-end_level = False
-pause_menu = False
-level_failed = False
+
+
 ### -----------------------------------------------------------------Constant Buttons-------------------------------------------------------------------------------###
 playbutton = Button(RED, 540,150,200,100,PLAYfont,'PLAY')
 for counter in range(0,10):
-    level_button = Button(ORANGE,level_x_places[counter], level_y_places[counter],100,100,PLAYfont,level_numbers[counter])
+    level_button = Button(level_colour_data[counter][0],level_x_places[counter], level_y_places[counter],100,100,PLAYfont,level_numbers[counter])
     level_buttons.append(level_button)
 
 pause_button = Button(BLUE,1060,600,200,100,bigfont,'PAUSE')
@@ -762,24 +775,25 @@ while not game_over:
             game_over = True
         elif level_running and len(player_group)>0:
             if event.type ==pygame.KEYDOWN:
-                try:
-                    if event.key ==pygame.K_w:
-                        player.set_direction_y(-1)
-                    elif event.key == pygame.K_s:
-                        player.set_direction_y(1)
-                    elif event.key == pygame.K_d:
-                        player.set_direction_x(1)
-                    elif event.key == pygame.K_a:
-                        player.set_direction_x(-1)
-                except:
-                    NameError
+                if event.key == pygame.K_w:
+                    player.go_up()
+                elif event.key == pygame.K_s:
+                    player.go_down()
+                elif event.key == pygame.K_d:
+                    player.go_right()
+                elif event.key == pygame.K_a:
+                    player.go_left()
+                    
+
             elif event.type == pygame.KEYUP:
-                try:
-                    player.set_direction_x(0)
-                    player.set_direction_y(0)
-                except:
-                    NameError
-         
+                if event.key == pygame.K_w:
+                    player.stop_y()
+                elif event.key == pygame.K_s:
+                    player.stop_y()
+                elif event.key == pygame.K_d:
+                    player.stop_x()
+                elif event.key == pygame.K_a:
+                    player.stop_x()
     
         # If the mouse is clicked over a button the actions are done.
         if event.type == pygame.MOUSEBUTTONDOWN:

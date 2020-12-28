@@ -504,7 +504,8 @@ def map_creator(layout):
                 
             elif layout[y][x] == 9 :
                 #enemy obstacle (+1 rotation)
-                create_enemyobstacle(x*10,y*10,int(layout[y][x+1]))
+                if int(layout[y][x+1]) != 0:                    #<---- REMOVE this line to get back the default enemy obstacles.
+                    create_enemyobstacle(x*10,y*10,int(layout[y][x+1]))
 
 
 def level_complete(level):
@@ -854,7 +855,7 @@ while not game_over:
         # All the colour changes for any button done here             
         if event.type == pygame.MOUSEMOTION:
             # Play 
-            if playbutton.isOver(mouse_pos):
+            if not play_game and playbutton.isOver(mouse_pos):
                 playbutton.colour = GREEN
             else:
                 playbutton.colour =RED
@@ -864,26 +865,26 @@ while not game_over:
             else:
                 pause_button.colour = BLUE
             # Pause menu
-            if pmenu_button.isOver(mouse_pos):
+            if pause_menu and pmenu_button.isOver(mouse_pos):
                 pmenu_button.colour = YELLOW
             else:
                 pmenu_button.colour = ORANGE
             # End of level menu button
-            if endlevel_button.isOver(mouse_pos):
+            if end_level and endlevel_button.isOver(mouse_pos):
                 endlevel_button.colour = YELLOW
             else:
                 endlevel_button.colour = ORANGE
             # Pause Level
-            if plevel_button.isOver(mouse_pos):
+            if pause_menu and plevel_button.isOver(mouse_pos):
                 plevel_button.colour = YELLOW
             else:
                 plevel_button.colour = ORANGE
             # Pause Quit
-            if pquit_button.isOver(mouse_pos):
+            if pause_menu and pquit_button.isOver(mouse_pos):
                 pquit_button.colour = PINK
             else:
                 pquit_button.colour = RED
-            if level_failed_button.isOver(mouse_pos):
+            if level_failed and level_failed_button.isOver(mouse_pos):
                 level_failed_button.colour = GREEN
             else:
                 level_failed_button.colour = RED
@@ -896,6 +897,7 @@ while not game_over:
                                         
                 elif play_game:
                     set_level_colour(counter, level_colour_data[counter][0]) #-calls procedure that can revert the colour
+                    
         if play_game and not(pause_menu) and not end_level and event.type == pygame.MOUSEBUTTONDOWN:  #checks if a level is clicked
             for counter in range(0,10):
                 if level_buttons[counter].isOver(mouse_pos):

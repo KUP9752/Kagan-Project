@@ -42,7 +42,16 @@ screen.fill(BLACK)
 # -- Title of new window/screen
 pygame.display.set_caption("GAME")
 
+### -------------------------------------------------------------------Graphics----------------------------------------------------------------------###
+Cone = pygame.image.load('graphics/VisionCone/viscone.png')
+ConeU = pygame.image.load('graphics/VisionCone/viscone up.png')
+ConeD = pygame.image.load('graphics/VisionCone/viscone down.png')
+ConeR = pygame.image.load('graphics/VisionCone/viscone right.png')
+ConeL = pygame.image.load('graphics/VisionCone/viscone left.png')
+ConeGraphics = [ConeU, ConeD, ConeR, ConeL]
 
+
+KeyImage = pygame.image.load('graphics/KEY.png')
 ## ---------------------------------------------------------------------Classes-----------------------------------------------------------------------##
 class Player(pygame.sprite.Sprite):
     def __init__(self,colour,x,y):
@@ -166,7 +175,9 @@ class Enemy(pygame.sprite.Sprite):
 
 
 
-                # --------------------------------------Useless movement logic using try-except clause with exception classes
+
+
+                # --------------------------------------Useless E3 movement logic using try-except clause with exception classes
                 
 ##            for elem in enemyobs_hit_group:
 ##                self.rect.x -= self.speed*self.direction_x
@@ -323,13 +334,14 @@ class Obstacle(pygame.sprite.Sprite):
                                     
         
 class Key(pygame.sprite.Sprite):
-    def __init__(self,x,y):
+    def __init__(self, x, y):
         super().__init__()
+        self.graphic = KeyImage
         self.colour = YELLOW
-        self.width = 20
-        self.height = 20
-        self.image = pygame.Surface([self.width,self.height])
-        self.image.fill(self.colour)
+        self.width = 24
+        self.height = 12
+        self.image = pygame.transform.scale(self.graphic,(self.width, self.height))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

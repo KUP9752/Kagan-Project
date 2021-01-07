@@ -55,6 +55,16 @@ KeyImage = pygame.image.load('graphics/KEY.png')
 
 spritesheet = Spritesheet('graphics/BIGspritesheet.png')
 
+CharUp = [spritesheet.parse_sprite('charup1.png'),spritesheet.parse_sprite('charup1.png'),spritesheet.parse_sprite('charup1.png'), spritesheet.parse_sprite('charup2.png'),spritesheet.parse_sprite('charup2.png'),spritesheet.parse_sprite('charup2.png'), spritesheet.parse_sprite('charup3.png'), spritesheet.parse_sprite('charup3.png'), spritesheet.parse_sprite('charup3.png'),spritesheet.parse_sprite('charup4.png'),spritesheet.parse_sprite('charup4.png'),spritesheet.parse_sprite('charup4.png')]
+CharDown = [spritesheet.parse_sprite('chardown1.png'),spritesheet.parse_sprite('chardown1.png'),spritesheet.parse_sprite('chardown1.png'), spritesheet.parse_sprite('chardown2.png'),spritesheet.parse_sprite('chardown2.png'),spritesheet.parse_sprite('chardown2.png'), spritesheet.parse_sprite('chardown3.png'), spritesheet.parse_sprite('chardown3.png'), spritesheet.parse_sprite('chardown3.png'),spritesheet.parse_sprite('chardown4.png'),spritesheet.parse_sprite('chardown4.png'),spritesheet.parse_sprite('chardown4.png')]
+CharRight = [spritesheet.parse_sprite('charright1.png'),spritesheet.parse_sprite('charright1.png'),spritesheet.parse_sprite('charright1.png'), spritesheet.parse_sprite('charright2.png'),spritesheet.parse_sprite('charright2.png'),spritesheet.parse_sprite('charright2.png'), spritesheet.parse_sprite('charright3.png'), spritesheet.parse_sprite('charright3.png'), spritesheet.parse_sprite('charright3.png'),spritesheet.parse_sprite('charright4.png'),spritesheet.parse_sprite('charright4.png'),spritesheet.parse_sprite('charright4.png')]
+CharLeft = [spritesheet.parse_sprite('charleft1.png'),spritesheet.parse_sprite('charleft1.png'),spritesheet.parse_sprite('charleft1.png'), spritesheet.parse_sprite('charleft2.png'),spritesheet.parse_sprite('charleft2.png'),spritesheet.parse_sprite('charleft2.png'), spritesheet.parse_sprite('charleft3.png'), spritesheet.parse_sprite('charleft3.png'), spritesheet.parse_sprite('charleft3.png'),spritesheet.parse_sprite('charleft4.png'),spritesheet.parse_sprite('charleft4.png'),spritesheet.parse_sprite('charleft4.png')]
+
+CharUpRight = [spritesheet.parse_sprite('charupright1.png'),spritesheet.parse_sprite('charupright1.png'),spritesheet.parse_sprite('charupright1.png'), spritesheet.parse_sprite('charupright2.png'),spritesheet.parse_sprite('charupright2.png'),spritesheet.parse_sprite('charupright2.png'), spritesheet.parse_sprite('charupright3.png'), spritesheet.parse_sprite('charupright3.png'), spritesheet.parse_sprite('charupright3.png'),spritesheet.parse_sprite('charupright4.png'),spritesheet.parse_sprite('charupright4.png'),spritesheet.parse_sprite('charupright4.png')]
+CharUpLeft = [spritesheet.parse_sprite('charupleft1.png'),spritesheet.parse_sprite('charupleft1.png'),spritesheet.parse_sprite('charupleft1.png'), spritesheet.parse_sprite('charupleft2.png'),spritesheet.parse_sprite('charupleft2.png'),spritesheet.parse_sprite('charupleft2.png'), spritesheet.parse_sprite('charupleft3.png'), spritesheet.parse_sprite('charupleft3.png'), spritesheet.parse_sprite('charupleft3.png'),spritesheet.parse_sprite('charupleft4.png'),spritesheet.parse_sprite('charupleft4.png'),spritesheet.parse_sprite('charupleft4.png')]
+CharDownRight = [spritesheet.parse_sprite('chardownright1.png'),spritesheet.parse_sprite('chardownright1.png'),spritesheet.parse_sprite('chardownright1.png'), spritesheet.parse_sprite('chardownright2.png'),spritesheet.parse_sprite('chardownright2.png'),spritesheet.parse_sprite('chardownright2.png'), spritesheet.parse_sprite('chardownright3.png'), spritesheet.parse_sprite('chardownright3.png'), spritesheet.parse_sprite('chardownright3.png'),spritesheet.parse_sprite('chardownright4.png'),spritesheet.parse_sprite('chardownright4.png'),spritesheet.parse_sprite('chardownright4.png')]
+CharDownLeft = [spritesheet.parse_sprite('chardownleft1.png'),spritesheet.parse_sprite('chardownleft1.png'),spritesheet.parse_sprite('chardownleft1.png'), spritesheet.parse_sprite('chardownleft2.png'),spritesheet.parse_sprite('chardownleft2.png'),spritesheet.parse_sprite('chardownleft2.png'), spritesheet.parse_sprite('chardownleft3.png'), spritesheet.parse_sprite('chardownleft3.png'), spritesheet.parse_sprite('chardownleft3.png'),spritesheet.parse_sprite('chardownleft4.png'),spritesheet.parse_sprite('chardownleft4.png'),spritesheet.parse_sprite('chardownleft4.png')]
+
 
 
 
@@ -69,19 +79,24 @@ class Player(pygame.sprite.Sprite):
         self.filename = name
         self.keycollected = False
         self.colenemy = False   #Boolean variable to hold whether the player has collided with any enemies
-        self.speed = 10
+        self.speed = 5
         self.direction_x =0
         self.direction_y =0
         self.colour = colour
-        self.image =spritesheet.parse_sprite(self.filename)
+
+
 
         self.width = spritesheet.get_width(self.filename)
         self.height = spritesheet.get_height(self.filename)
-
+        self.image =spritesheet.parse_sprite(self.filename)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x 
         self.rect.y = y
+
+        self.index = 0
+        #add all textures
+
 
 
     def get_key_state(self):
@@ -156,7 +171,44 @@ class Player(pygame.sprite.Sprite):
         # -> Logic for finishing a level after the key is collected
             # --- Also added later on in the code, using a text function.
 
-                
+        # --------------- Graphic Changing
+        if self.direction_y <0:
+            if self.direction_x >0:
+
+                self.image = CharUpRight[self.index]
+                self.index = (self.index + 1) % len(CharUpRight)
+            elif self.direction_x <0:
+
+                self.image = CharUpLeft[self.index]
+                self.index = (self.index +1) % len(CharUpLeft)
+
+            self.image = CharUp[self.index]
+            self.index = (self.index + 1) % len(CharUp)
+        elif self.direction_y >0:
+
+            if self.direction_x <0:
+
+                self.image = CharDownRight[self.index]
+                self.index = (self.index + 1) % len(CharDownRight)
+            elif self.direction_x <0:
+
+                self.image = CharDownLeft[self.index]
+                self.index = (self.index + 1) % len(CharDownLeft)
+
+            self.image = CharDown[self.index]
+            self.index = (self.index + 1) % len(CharDown)
+
+        elif self.direction_y == 0:
+
+            if self.direction_x >0:
+
+                self.image = CharRight[self.index]
+                self.index = (self.index + 1) % len(CharRight)
+            elif self.direction_x <0:
+
+                self.image = CharLeft[self.index]
+                self.index = (self.index + 1) % len(CharLeft)
+
                 
         
 
@@ -266,7 +318,15 @@ class Enemy1(Enemy):
         self.speed = 0
         self.colour = RED
         super().__init__(x, y, facing)
-        
+
+        if facing == 61:
+            self.image = spritesheet.parse_sprite('enemy1up.png')
+        elif facing == 62:
+            self.image = spritesheet.parse_sprite('enemy1down.png')
+        elif facing == 63:
+            self.image = spritesheet.parse_sprite('enemy1right.png')
+        elif self.facing == 64:
+            self.image = spritesheet.parse_sprite('enemy1left.png')
 
 class Enemy2(Enemy):
     def __init__(self, x, y, facing):
@@ -499,7 +559,7 @@ def level_selector(num):
     if num ==10:
         level_l0(num)
         
-def level_clear():                  #clears all the sprite groups 
+def level_clear():                  #clears all the sprite groups
     all_sprites_group.empty()
     obstacle_group.empty()
     player_group.empty()
@@ -1004,7 +1064,7 @@ while not game_over:
         all_sprites_group.draw(screen)
         player_group.update()
         enemy_group.update()
-        
+
         if level_failed:
             
             level_failed_text()

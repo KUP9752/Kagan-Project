@@ -65,8 +65,10 @@ CharUpLeft = [spritesheet.parse_sprite('charupleft1.png'),spritesheet.parse_spri
 CharDownRight = [spritesheet.parse_sprite('chardownright1.png'),spritesheet.parse_sprite('chardownright1.png'),spritesheet.parse_sprite('chardownright1.png'), spritesheet.parse_sprite('chardownright2.png'),spritesheet.parse_sprite('chardownright2.png'),spritesheet.parse_sprite('chardownright2.png'), spritesheet.parse_sprite('chardownright3.png'), spritesheet.parse_sprite('chardownright3.png'), spritesheet.parse_sprite('chardownright3.png'),spritesheet.parse_sprite('chardownright4.png'),spritesheet.parse_sprite('chardownright4.png'),spritesheet.parse_sprite('chardownright4.png')]
 CharDownLeft = [spritesheet.parse_sprite('chardownleft1.png'),spritesheet.parse_sprite('chardownleft1.png'),spritesheet.parse_sprite('chardownleft1.png'), spritesheet.parse_sprite('chardownleft2.png'),spritesheet.parse_sprite('chardownleft2.png'),spritesheet.parse_sprite('chardownleft2.png'), spritesheet.parse_sprite('chardownleft3.png'), spritesheet.parse_sprite('chardownleft3.png'), spritesheet.parse_sprite('chardownleft3.png'),spritesheet.parse_sprite('chardownleft4.png'),spritesheet.parse_sprite('chardownleft4.png'),spritesheet.parse_sprite('chardownleft4.png')]
 
-
-
+Enemy3Up =[spritesheet.parse_sprite('enemy3up1.png'),spritesheet.parse_sprite('enemy3up1.png'),spritesheet.parse_sprite('enemy3up1.png'),spritesheet.parse_sprite('enemy3up2.png'),spritesheet.parse_sprite('enemy3up2.png'),spritesheet.parse_sprite('enemy3up2.png'),spritesheet.parse_sprite('enemy3up3.png'),spritesheet.parse_sprite('enemy3up3.png'),spritesheet.parse_sprite('enemy3up3.png'),spritesheet.parse_sprite('enemy3up4.png'),spritesheet.parse_sprite('enemy3up4.png'),spritesheet.parse_sprite('enemy3up4.png')]
+Enemy3Down =[spritesheet.parse_sprite('enemy3down1.png'),spritesheet.parse_sprite('enemy3down1.png'),spritesheet.parse_sprite('enemy3down1.png'),spritesheet.parse_sprite('enemy3down2.png'),spritesheet.parse_sprite('enemy3down2.png'),spritesheet.parse_sprite('enemy3down2.png'),spritesheet.parse_sprite('enemy3down3.png'),spritesheet.parse_sprite('enemy3down3.png'),spritesheet.parse_sprite('enemy3down3.png'),spritesheet.parse_sprite('enemy3down4.png'),spritesheet.parse_sprite('enemy3down4.png'),spritesheet.parse_sprite('enemy3down4.png')]
+Enemy3Right =[spritesheet.parse_sprite('enemy3right1.png'),spritesheet.parse_sprite('enemy3right1.png'),spritesheet.parse_sprite('enemy3right1.png'),spritesheet.parse_sprite('enemy3right2.png'),spritesheet.parse_sprite('enemy3right2.png'),spritesheet.parse_sprite('enemy3right2.png'),spritesheet.parse_sprite('enemy3right3.png'),spritesheet.parse_sprite('enemy3right3.png'),spritesheet.parse_sprite('enemy3right3.png'),spritesheet.parse_sprite('enemy3right4.png'),spritesheet.parse_sprite('enemy3right4.png'),spritesheet.parse_sprite('enemy3right4.png')]
+Enemy3Left =[spritesheet.parse_sprite('enemy3left1.png'),spritesheet.parse_sprite('enemy3left1.png'),spritesheet.parse_sprite('enemy3left1.png'),spritesheet.parse_sprite('enemy3left2.png'),spritesheet.parse_sprite('enemy3left2.png'),spritesheet.parse_sprite('enemy3left2.png'),spritesheet.parse_sprite('enemy3left3.png'),spritesheet.parse_sprite('enemy3left3.png'),spritesheet.parse_sprite('enemy3left3.png'),spritesheet.parse_sprite('enemy3left4.png'),spritesheet.parse_sprite('enemy3left4.png'),spritesheet.parse_sprite('enemy3left4.png')]
 
 
 
@@ -345,10 +347,10 @@ class Enemy2(Enemy):
 
 class Enemy3(Enemy):
     def __init__(self, x, y, facing):
-        self.speed = 2                           #!!!!!!!!!!!!! speed = 1 when movement is needed
+        self.speed = 1                           #!!!!!!!!!!!!! speed = 1 when movement is needed
         self.colour = ORANGE
         super().__init__(x, y, facing)
-
+        self.index = 0
         if facing == 61:
             self.image = spritesheet.parse_sprite('enemy3up1.png')
         elif facing == 62:
@@ -357,6 +359,7 @@ class Enemy3(Enemy):
             self.image = spritesheet.parse_sprite('enemy3right1.png')
         elif self.facing == 64:
             self.image = spritesheet.parse_sprite('enemy3left1.png')
+
     def update(self):
         if self.direction_x != 0:
             self.rect.x += self.direction_x*self.speed
@@ -371,7 +374,18 @@ class Enemy3(Enemy):
             self.direction_x = elem.get_direction_x()
             self.direction_y = elem.get_direction_y()
     
-        
+        if self.direction_y <0:
+            self.image = Enemy3Up[self.index]
+            self.index = (self.index+1) % len(Enemy3Up)
+        if self.direction_y >0:
+            self.image = Enemy3Down[self.index]
+            self.index = (self.index+1) % len(Enemy3Down)
+        if self.direction_x < 0:
+            self.image = Enemy3Left[self.index]
+            self.index = (self.index + 1) % len(Enemy3Left)
+        if self.direction_x > 0:
+            self.image = Enemy3Right[self.index]
+            self.index = (self.index + 1) % len(Enemy3Right)
         
 
         

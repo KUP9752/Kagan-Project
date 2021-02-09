@@ -465,7 +465,7 @@ def level_selector(num):
     if num ==9:
         level_9(num)
     if num ==10:
-        level_l0(num)
+        level_10(num)
         
 def level_clear():                  #clears all the sprite groups 
     all_sprites_group.empty()

@@ -1177,7 +1177,7 @@ while not game_over:
 
         except:
             NameError
-        background_group.draw(screen)
+        #background_group.draw(screen)
         all_sprites_group.draw(screen)
         player_group.update()
         enemy_group.update()

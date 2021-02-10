@@ -172,24 +172,17 @@ class Player(pygame.sprite.Sprite):
 
         # ------- Enemy  collision
             #---Collision witht the enemy object itself
-        #enemybody_hit_group = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
-        #for elem in enemybody_hit_group:
-         #   print('collided with enemy')
-          #  self.colenemy = True
+        enemybody_hit_group = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
+        for elem in enemybody_hit_group:
+            print('collided with enemy')
+            self.colenemy = True
 
-            #---Proximity Detection
+            #---Getting Detected for getting close      !   DOESNT WORK
         for elem in enemy_group:
             enemy_loc =elem.get_centre()
             player_loc = self.get_centre()
             distance = round(math.sqrt((enemy_loc[0]-player_loc[0])**2+(enemy_loc[1]-player_loc[1])**2))
-            if distance<60:
-                self.colenemy = True
-
-            # --- Vision Detection
-
-
-
-
+            print(distance)
 
         # ------Key Collection Logic (opens the gate)
         key_hit_group = pygame.sprite.groupcollide(player_group, key_group, False, True)
@@ -567,18 +560,13 @@ class Button():
 class Background(pygame.sprite.Sprite):
     def __init__(self, name,x ,y):
         super().__init__()
-
-        self.image = pygame.image.load(name).convert()
+        self.image = pygame.image.load(name)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
     def update_image(self, name):
         self.image = pygame.image.load(name)
-
-
-
-
 
 
 
@@ -718,9 +706,9 @@ def level_1(num):
     create_obstacle(100, 100, 100, 200)
     create_key(300, 300)
     create_exit(500, 0, 200, 50)
-    create_enemy(400, 400, 1, 61, 0)
-    create_enemy(500, 500, 2, 61, 150)
-    create_enemy(600, 600, 3, 61, 1)
+    create_enemy(400, 400, 1, 61)
+    create_enemy(500, 500, 2, 61)
+    create_enemy(600, 600, 3, 61)
     create_enemyobstacle(600, 300, 92)  # has direction direction
     create_enemyobstacle(700, 300, 0)  # normal enemyobstacle object
 
@@ -940,8 +928,6 @@ key_group = pygame.sprite.Group()
 
 exit_group = pygame.sprite.Group()
 
-background_group = pygame.sprite.Group()
-
 ##  --  Button/Cursor Sprites and Groups --  ##
 ##cursor_group = pygame.sprite.Group()
 ##cursor = Cursor(WHITE, 500, 500)
@@ -985,8 +971,6 @@ endlevel_button = Button(ORANGE, 440, 350, 400, 50, bigfont, 'Return to Menu')
 level_failed_button = Button(RED, 440, 350, 400, 50, bigfont, 'Restart')
 
 Background = Background('graphics/Backgrounds/MenuBackground.png', 0, 0)
-background_group.add(Background)
-
 # -- current_level //used later to determine which level is running
 
 ##                                                                                       _________
@@ -1136,27 +1120,21 @@ while not game_over:
     # Pause Menu
     pause_button.draw(screen)
     if pause_menu:
-        Background.update_image('graphics/Backgrounds/PauseMenu.png')
-        background_group.draw(screen)
         pause_menu_title()
         pmenu_button.draw(screen)
         plevel_button.draw(screen)
         pquit_button.draw(screen)
 
-
+        screen.blit(Background.image, Background.rect)
     if not level_running and not pause_menu:  # -whether a level is running
         if not play_game and not end_level:  # -nothing runnnig displays title screen
-            Background.update_image('graphics/Backgrounds/MenuBackground.png')
-            background_group.draw(screen)
             playbutton.draw(screen)
         if play_game:  # -play pressed into level screen
-            Background.update_image('graphics/Backgrounds/MenuBackground.png')
-            background_group.draw(screen)
             level_menu_title()
             for counter in range(0, 10):
                 level_buttons[counter].draw(screen)
 
-
+            screen.blit(Background.image, Background.rect)
     elif level_running and not pause_menu:
         play_game = False
         # writes the level on the screen
@@ -1177,11 +1155,9 @@ while not game_over:
 
         except:
             NameError
-        background_group.draw(screen)
         all_sprites_group.draw(screen)
         player_group.update()
         enemy_group.update()
-
 
         if level_failed:
             level_failed_text()
@@ -1190,7 +1166,6 @@ while not game_over:
             level_failed_button.draw(screen)
 
         if end_level:
-            Background.update_image('graphics/Backgrounds/MenuBackground.png')
             play_game = False
             endlevel_button.draw(screen)
             level_complete_text()
@@ -1200,7 +1175,6 @@ while not game_over:
     ##---------------------------------------------------------------------Draw here---------------------------------------------------------------------##
 
     # -- flip display to draw the buttons on the screen
-    #screen.blit(Background.image, Background.rect)
     pygame.display.flip()
 
     # - The clock ticks over

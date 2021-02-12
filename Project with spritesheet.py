@@ -805,7 +805,7 @@ def create_obstacle(x, y, w, h):
     global obstacle
     obstacle = Obstacle(x, y, w, h)
     obstacle_group.add(obstacle)
-    all_sprites_group.add(obstacle)
+    #all_sprites_group.add(obstacle)    #hased to keep them from getting drawn on the screen
 
 
 def create_exit(x, y, w, h):
@@ -840,7 +840,7 @@ def create_enemyobstacle(x, y, facing):
     global enemy_obs
     enemy_obs = EnemyObstacle(x, y, facing)
     enemyobs_group.add(enemy_obs)
-    all_sprites_group.add(enemy_obs)  # ----!!!!!line should be hashed so that the enemyobs are not visible to the user
+    #all_sprites_group.add(enemy_obs)  # ----!!!!!line should be hashed so that the enemyobs are not visible to the user
 
 # function that calculates the dimensions and the coordinates of a detection rectangle
 def create_enemy_detection_area(elem):   #elem is the enemy that the area is being created for

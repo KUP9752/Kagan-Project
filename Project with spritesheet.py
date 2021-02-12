@@ -1160,6 +1160,8 @@ while not game_over:
     elif level_running and not pause_menu:
         play_game = False
         # writes the level on the screen
+        background_group.draw(screen)
+        pause_button.draw(screen)
         try:
             screen.blit(leveltext, leveltextRect)
             # checks whether the key has been collected to finish the level
@@ -1177,7 +1179,7 @@ while not game_over:
 
         except:
             NameError
-        #background_group.draw(screen)
+
         all_sprites_group.draw(screen)
         player_group.update()
         enemy_group.update()

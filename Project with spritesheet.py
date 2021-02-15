@@ -565,13 +565,13 @@ class Button():
         return False
 
 class Background(pygame.sprite.Sprite):
-    def __init__(self, name,x ,y):
+    def __init__(self, name):
         super().__init__()
 
         self.image = pygame.image.load(name).convert()
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.x = 0
+        self.rect.y = 0
 
     def update_image(self, name):
         self.image = pygame.image.load(name)
@@ -869,7 +869,7 @@ def leveltext_creator(num):
     global leveltextRect
     leveltext = bigfont.render('LEVEL ' + str(num), True, PURPLE)
     leveltextRect = leveltext.get_rect()
-    leveltextRect.center = (1150, 50)
+    leveltextRect.center = (1140, 60)
 
 
 def pause_menu_title():
@@ -975,7 +975,7 @@ for counter in range(0, 10):
                           PLAYfont, level_numbers[counter])
     level_buttons.append(level_button)
 
-pause_button = Button(BLUE, 1060, 600, 200, 100, bigfont, 'PAUSE')
+pause_button = Button(BLUE, 1040, 580, 200, 100, bigfont, 'PAUSE')
 pmenu_button = Button(ORANGE, 540, 250, 200, 50, font, 'MENU')
 plevel_button = Button(ORANGE, 540, 350, 200, 50, font, 'LEVELS')
 pquit_button = Button(RED, 540, 450, 200, 50, bigfont, 'QUIT')
@@ -984,7 +984,7 @@ endlevel_button = Button(ORANGE, 440, 350, 400, 50, bigfont, 'Return to Menu')
 
 level_failed_button = Button(RED, 440, 350, 400, 50, bigfont, 'Restart')
 
-Background = Background('graphics/Backgrounds/MenuBackground.png', 0, 0)
+Background = Background('graphics/Backgrounds/MenuBackground.png')
 background_group.add(Background)
 
 # -- current_level //used later to determine which level is running
@@ -1114,12 +1114,10 @@ while not game_over:
             for counter in range(0, 10):
                 if play_game and level_buttons[counter].isOver(mouse_pos):
 
-                    set_level_colour(counter,
-                                     level_colour_data[counter][1])  # -calls procedure to change button hover colour
+                    set_level_colour(counter,level_colour_data[counter][1])  # -calls procedure to change button hover colour
 
                 elif play_game:
-                    set_level_colour(counter,
-                                     level_colour_data[counter][0])  # -calls procedure that can revert the colour
+                    set_level_colour(counter,level_colour_data[counter][0])  # -calls procedure that can revert the colour
 
         if play_game and not (pause_menu) and not end_level and event.type == pygame.MOUSEBUTTONDOWN:  # checks if a level is clicked
             for counter in range(0, 10):
@@ -1136,12 +1134,20 @@ while not game_over:
     # Pause Menu
     pause_button.draw(screen)
     if pause_menu:
-        Background.update_image('graphics/Backgrounds/PauseMenu.png')
         background_group.draw(screen)
+        if level_running:
+            all_sprites_group.draw(screen)
+            pause_button.draw(screen)
+            try:
+                screen.blit(leveltext, leveltextRect)
+            except:
+                NameError
+        
         pause_menu_title()
         pmenu_button.draw(screen)
         plevel_button.draw(screen)
         pquit_button.draw(screen)
+
 
 
     if not level_running and not pause_menu:  # -whether a level is running
@@ -1149,9 +1155,11 @@ while not game_over:
             Background.update_image('graphics/Backgrounds/MenuBackground.png')
             background_group.draw(screen)
             playbutton.draw(screen)
+            pause_button.draw(screen)
         if play_game:  # -play pressed into level screen
             Background.update_image('graphics/Backgrounds/MenuBackground.png')
             background_group.draw(screen)
+            pause_button.draw(screen)
             level_menu_title()
             for counter in range(0, 10):
                 level_buttons[counter].draw(screen)
@@ -1202,7 +1210,7 @@ while not game_over:
     ##---------------------------------------------------------------------Draw here---------------------------------------------------------------------##
 
     # -- flip display to draw the buttons on the screen
-    #screen.blit(Background.image, Background.rect)
+
     pygame.display.flip()
 
     # - The clock ticks over

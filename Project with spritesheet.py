@@ -18,8 +18,9 @@ PINK = (255, 89, 222)
 BROWN = (165, 42, 42)
 CHOCOLATE = (210, 105, 30)
 GREY = (128, 128, 128)
+LIGHTBLUE = (173,216,230)
 COLOUR = [WHITE, BLUE, YELLOW, RED, GREEN, ORANGE, PURPLE,
-          AQUA, PINK, BROWN, CHOCOLATE, GREY]
+          AQUA, PINK, BROWN, CHOCOLATE, GREY, LIGHTBLUE]
 
 # -- Initialise PyGame
 pygame.init()
@@ -170,12 +171,12 @@ class Player(pygame.sprite.Sprite):
             if not self.get_key_state():
                 no_key_text()
 
-        # ------- Enemy  collision
-            #---Collision witht the enemy object itself
-        #enemybody_hit_group = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
-        #for elem in enemybody_hit_group:
-         #   print('collided with enemy')
-          #  self.colenemy = True
+        # ------- Enemy    collision
+            #---Collision with the enemy detection area
+        enemyarea_hit_group = pygame.sprite.groupcollide(player_group, enemy_vision_group, False, False)
+        for elem in enemyarea_hit_group:
+            print('collided with enemy detection area')
+            self.colenemy = True
 
             #---Proximity Detection
         for elem in enemy_group:
@@ -183,6 +184,7 @@ class Player(pygame.sprite.Sprite):
             player_loc = self.get_centre()
             distance = round(math.sqrt((enemy_loc[0]-player_loc[0])**2+(enemy_loc[1]-player_loc[1])**2))
             if distance<60:
+                print('collided with enemy')
                 self.colenemy = True
 
             # --- Vision Detection
@@ -249,7 +251,7 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, facing, speed):
         super().__init__()
-
+        self.colour = BLUE
         self.facing = facing
         self.direction_x = 0
         self.direction_y = 0  # -1 in y is UP!
@@ -279,6 +281,7 @@ class Enemy(pygame.sprite.Sprite):
         centre_y = self.rect.y + (self.height/2)
         return [centre_x, centre_y]
             # --------------------------------------Useless E3 movement logic using try-except clause with exception classes
+
 
 
 ##            for elem in enemyobs_hit_group:
@@ -386,6 +389,8 @@ class Enemy2(Enemy):
             self.o_list_pointer = 3
 
     def update(self):
+
+
         self.index = (self.index + 1) % self.speed
         if self.index == 0:
             self.o_list_pointer = (self.o_list_pointer + 1) % len(self.orientation_list)
@@ -401,7 +406,7 @@ class Enemy3(Enemy):
         self.counter = 0
         super().__init__(x, y, facing, speed)
         self.speed = 1  # speed is now provided as an argument                      #!!!!!!!!!!!!! speed = 1 when movement is needed
-
+        self.speedcounter = 0
         self.index = 0
         if facing == 61:
             self.image = spritesheet.parse_sprite('enemy3up1.png')
@@ -413,10 +418,10 @@ class Enemy3(Enemy):
             self.image = spritesheet.parse_sprite('enemy3left1.png')
 
     def update(self):
-
-        if self.direction_x != 0:
+        #self.speedcounter = (self.speedcounter +1) %2      #halves te speed of the enemies
+        if self.direction_x != 0 and self.speedcounter ==0:
             self.rect.x += self.direction_x * self.speed
-        if self.direction_y != 0:
+        if self.direction_y != 0 and self.speedcounter ==0:
             self.rect.y += self.direction_y * self.speed
 
         enemyobs_hit_group = pygame.sprite.spritecollide(self, enemyobs_group, False)
@@ -426,6 +431,15 @@ class Enemy3(Enemy):
             self.rect.y -= self.speed * self.direction_y
             self.direction_x = elem.get_direction_x()
             self.direction_y = elem.get_direction_y()
+
+        if self.direction_y<0:  #up
+            self.facing =61
+        elif self.direction_y>0:    #down
+            self.facing =62
+        if self.direction_x>0:  #right
+            self.facing = 63
+        elif self.direction_x<0:    #left
+            self.facing = 64
 
         self.counter = (self.counter + 1) % 5
         if self.counter == 0:
@@ -441,6 +455,68 @@ class Enemy3(Enemy):
             if self.direction_x > 0:
                 self.image = Enemy3Right[self.index]
                 self.index = (self.index + 1) % len(Enemy3Right)
+
+class EnemyVision(Enemy):
+    def __init__(self, x, y,width, height, centre_pos, facing):
+        speed = 0
+        super().__init__(x, y, facing, speed)
+        self.centre_pos = centre_pos
+        self.colour = LIGHTBLUE
+        self.width = width
+        self.height = height
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def check_pos_change(self, newcentre_pos):
+        if self.centre_pos[0] == newcentre_pos[0] and self.centre_pos[1] == newcentre_pos[1]:
+            return False
+        return True
+
+
+    def re_shaper(self, facing, centre_pos): #the dimensions, coordinates and the vision sprite changes
+        self.facing = facing
+        if self.facing == 61:  # Facing up
+            width = 50
+            height = 100
+            self.rect.x = centre_pos[0] - (width / 2)
+            self.rect.y = centre_pos[1] - height
+        elif self.facing == 62:  # Facing Down
+            width = 50
+            height = 100
+            self.rect.x = centre_pos[0] - (width / 2)
+            self.rect.y = centre_pos[1]
+        elif self.facing == 63:  # facing right
+            width = 100
+            height = 50
+            self.rect. x = centre_pos[0]
+            self.rect.y = centre_pos[1] - (height / 2)
+        elif self.facing == 64:  # facing left
+            width = 100
+            height = 50
+            self.rect.x = centre_pos[0] - width
+            self.rect.y = centre_pos[1] - (height / 2)
+
+
+        self.image = pygame.transform.scale(self.image,(width, height))
+        temp_x = self.rect.x
+        temp_y = self.rect.y
+        self.rect = self.image.get_rect()
+        self.rect.x = temp_x
+        self.rect.y = temp_y
+
+    def update(self):
+        enemy_hit_group = pygame.sprite.spritecollide(self, enemy_group, False)
+
+        for elem in enemy_hit_group:
+            #print("live collision")
+            if self.facing != elem.facing:      #if enemy changes direction, then the area must be recalculated
+                #print(elem.facing)
+                self.re_shaper(elem.facing, elem.get_centre())
+            elif  self.check_pos_change(elem.get_centre()):  #checks the centre of the vision with the enemy it corresponds to, if different it recalculates the area.
+                self.re_shaper(elem.facing,elem.get_centre())
 
 
 class EnemyObstacle(pygame.sprite.Sprite):
@@ -660,6 +736,8 @@ def level_clear():  # clears all the sprite groups
     enemyobs_group.empty()
     key_group.empty()
     exit_group.empty()
+    enemy_vision_group.empty()
+
 
 
 def map_creator(layout):
@@ -834,7 +912,8 @@ def create_enemy(x, y, e_type, facing, speed):
 
     enemy_group.add(enemy)
     all_sprites_group.add(enemy)
-
+    #if e_type == 2 and len(enemy_vision_group)<1:
+    create_enemy_detection_area(enemy)
 
 def create_enemyobstacle(x, y, facing):
     global enemy_obs
@@ -842,26 +921,35 @@ def create_enemyobstacle(x, y, facing):
     enemyobs_group.add(enemy_obs)
     #all_sprites_group.add(enemy_obs)  # ----!!!!!line should be hashed so that the enemyobs are not visible to the user
 
-# function that calculates the dimensions and the coordinates of a detection rectangle
+
 def create_enemy_detection_area(elem):   #elem is the enemy that the area is being created for
     centre_pos = elem.get_centre()
-    if elem.direction_x != 0:
-        width = 60
-        height = 30
-        y = centre_pos[1] - (height / 2)
-        if elem.direction_x <0:
-            x = centre_pos[0] - width
-        elif elem.dirtection_x > 0:
-            x = centre_pos[0]
-
-    elif elem.direction_y !=0:
-        width = 30
-        height = 60
+    direction = elem.facing
+    if  direction== 61:  # Facing up
+        width = 50
+        height = 100
         x = centre_pos[0] - (width / 2)
-        if elem.direction_x <0:
-            y = centre_pos[1] - height
-        elif elem.dirtection_x > 0:
-            y = centre_pos[1]
+        y = centre_pos[1] - height
+    elif direction == 62:  # Facing Down
+        width = 50
+        height = 100
+        x = centre_pos[0] - (width / 2)
+        y = centre_pos[1]
+    elif direction == 63:  # facing right
+        width = 100
+        height = 50
+        x = centre_pos[0]
+        y = centre_pos[1] - (height / 2)
+    elif direction == 64:  # facing left
+        width = 100
+        height = 50
+        x = centre_pos[0] - width
+        y = centre_pos[1] - (height / 2)
+
+    detarea = EnemyVision(x, y, width, height,centre_pos,direction)
+    enemy_vision_group.add(detarea)
+    #all_sprites_group.add(detarea)     #to draw it behind the enemy
+
 
 ###--------------------------------------------Text Boxes/Text Creator Functions----------------------------------###
 def leveltext_creator(num):
@@ -891,7 +979,7 @@ def key_col_text():  # text to display when key is collected
     # global keytextRect
     keytext = font.render('Key Collected', True, YELLOW)
     keytextRect = keytext.get_rect()
-    keytextRect.center = (1150, 550)
+    keytextRect.center = (1140, 550)
     return screen.blit(keytext, keytextRect)
 
 
@@ -901,7 +989,7 @@ def no_key_text():  # text to display when the key is not
     global nokeytextRect
     nokeytext = font.render('Key was not collected', True, RED)
     nokeytextRect = nokeytext.get_rect()
-    nokeytextRect.center = (1150, 550)
+    nokeytextRect.center = (1140, 550)
     return screen.blit(nokeytext, nokeytextRect)
 
 
@@ -931,6 +1019,8 @@ all_sprites_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 
 enemy_group = pygame.sprite.Group()
+
+enemy_vision_group = pygame.sprite.Group()
 
 enemyobs_group = pygame.sprite.Group()
 
@@ -1187,10 +1277,11 @@ while not game_over:
 
         except:
             NameError
-
+        enemy_vision_group.draw(screen)
         all_sprites_group.draw(screen)
         player_group.update()
         enemy_group.update()
+        enemy_vision_group.update()
 
 
         if level_failed:

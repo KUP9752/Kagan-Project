@@ -1226,6 +1226,7 @@ while not game_over:
     if pause_menu:
         background_group.draw(screen)
         if level_running:
+            enemy_vision_group.draw(screen)
             all_sprites_group.draw(screen)
             pause_button.draw(screen)
             try:

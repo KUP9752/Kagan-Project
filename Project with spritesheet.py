@@ -3,6 +3,7 @@ import random
 import math
 import json
 from spritesheet import Spritesheet
+from pyggame import mixer
 
 # -- Colours
 BLACK = (0, 0, 0)
@@ -790,10 +791,11 @@ def level_complete(level):
 ###------------------------------------Level Creation Functions---------------------------------###
 def level_1(num):
     Background.update_image('graphics/Backgrounds/Level1.png')
-    print('level 1 - Test Level')
+    print('level 1 - Tutorial Level')
     leveltext_creator(num)
     create_player(300, 500, 21)
-    create_obstacle(100, 100, 100, 200)
+    create_obstacle(380, 0, 60, 180)
+    create_obstacle(380, 435, 60, 357)
     create_key(300, 300)
     create_exit(500, 0, 200, 50)
     create_enemy(400, 400, 1, 61, 0)
@@ -806,8 +808,16 @@ def level_1(num):
 def level_2(num):
     Background.update_image('graphics/Backgrounds/Level2.png')
     leveltext_creator(num)
-    print('level 2')
-
+    print('level 2 - Test Level')
+    create_player(300, 500, 21)
+    create_obstacle(100, 100, 100, 200)
+    create_key(300, 300)
+    create_exit(500, 0, 200, 50)
+    create_enemy(400, 400, 1, 61, 0)
+    create_enemy(500, 500, 2, 61, 150)
+    create_enemy(600, 600, 3, 61, 1)
+    create_enemyobstacle(600, 300, 92)  # has direction direction
+    create_enemyobstacle(700, 300, 0)  # normal enemyobstacle object
 
 def level_3(num):
     Background.update_image('graphics/Backgrounds/Level3.png')

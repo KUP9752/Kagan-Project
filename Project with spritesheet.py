@@ -3,7 +3,7 @@ import random
 import math
 import json
 from spritesheet import Spritesheet
-from pyggame import mixer
+from pygame import mixer
 
 # -- Colours
 BLACK = (0, 0, 0)
@@ -55,7 +55,7 @@ ConeGraphics = [ConeU, ConeD, ConeR, ConeL]
 KeyImage = pygame.image.load('graphics/KEY.png')
 
 spritesheet = Spritesheet('graphics/BIGspritesheet.png')
-
+# ---Player object textures are loaded
 CharUp = [spritesheet.parse_sprite('charup1.png'), spritesheet.parse_sprite('charup2.png'),
           spritesheet.parse_sprite('charup3.png'), spritesheet.parse_sprite('charup4.png')]
 CharDown = [spritesheet.parse_sprite('chardown1.png'), spritesheet.parse_sprite('chardown2.png'),
@@ -73,7 +73,7 @@ CharDownRight = [spritesheet.parse_sprite('chardownright1.png'), spritesheet.par
                  spritesheet.parse_sprite('chardownright3.png'), spritesheet.parse_sprite('chardownright4.png')]
 CharDownLeft = [spritesheet.parse_sprite('charupleft1.png'), spritesheet.parse_sprite('charupleft2.png'),
                 spritesheet.parse_sprite('charupleft3.png'), spritesheet.parse_sprite('charupleft4.png')]
-
+#----Moving Enemy textures are loaded
 Enemy3Up = [spritesheet.parse_sprite('enemy3up1.png'), spritesheet.parse_sprite('enemy3up2.png'),
             spritesheet.parse_sprite('enemy3up3.png'), spritesheet.parse_sprite('enemy3up4.png')]
 Enemy3Down = [spritesheet.parse_sprite('enemy3down1.png'), spritesheet.parse_sprite('enemy3down2.png'),
@@ -97,7 +97,7 @@ class Player(pygame.sprite.Sprite):
         self.colour = colour
         self.counter = 0
 
-        self.width = spritesheet.get_width(self.filename)
+        self.width = spritesheet.get_width(self.filename) #width and height are calculated using the texture that gets loaded
         self.height = spritesheet.get_height(self.filename)
         self.image = spritesheet.parse_sprite(self.filename)
         self.image.set_colorkey(BLACK)
@@ -108,18 +108,18 @@ class Player(pygame.sprite.Sprite):
         self.index = 0
         # add all textures
 
-    def get_centre(self):
+    def get_centre(self):   #fucntion that returns the centre coordinates of the player object
         centre_x = self.rect.x + (self.width/2)
         centre_y = self.rect.y + (self.height/2)
         return [centre_x, centre_y]
 
-    def get_key_state(self):
+    def get_key_state(self):    #getter fucntion that indicates whether the key is collected.
         return self.keycollected
 
-    def set_key_state(self):
+    def set_key_state(self):    #setter function for setting the state of the key colletion
         self.keycollected = True
 
-    def get_colenemy_state(self):
+    def get_colenemy_state(self): # getter and setter fucntions that get and alter the state of a variable that determines level failure
         return self.colenemy
 
     def set_colenemy_state(self, state):
@@ -168,16 +168,19 @@ class Player(pygame.sprite.Sprite):
 
         # ------ Exit closed check
         exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)
+
         for elem in exit_hit_group:
             if not self.get_key_state():
                 no_key_text()
 
         # ------- Enemy    collision
             #---Collision with the enemy detection area
-        enemyarea_hit_group = pygame.sprite.groupcollide(player_group, enemy_vision_group, False, False)
+        enemyarea_hit_group = pygame.sprite.spritecollide(self, enemy_vision_group, False)
         for elem in enemyarea_hit_group:
-            print('collided with enemy detection area')
-            self.colenemy = True
+            obstacle_enemyarea_hit_group = pygame.sprite.spritecollide(elem, obstacle_group, False) #to make sure the corrrect detarea was being checked
+            if len(obstacle_enemyarea_hit_group) == 0:       #to make sure no detections through the wall happen
+                print('collided with enemy detection area')
+                self.colenemy = True
 
             #---Proximity Detection
         for elem in enemy_group:
@@ -185,7 +188,7 @@ class Player(pygame.sprite.Sprite):
             player_loc = self.get_centre()
             distance = round(math.sqrt((enemy_loc[0]-player_loc[0])**2+(enemy_loc[1]-player_loc[1])**2))
             if distance<60:
-                print('collided with enemy')
+                print('level failure due to proximity detection')
                 self.colenemy = True
 
             # --- Vision Detection
@@ -208,14 +211,14 @@ class Player(pygame.sprite.Sprite):
         # -> Logic for finishing a level after the key is collected
         # --- Also added later on in the code, using a text function.
 
-        # --------------- Texture FLipping
+        # --------------- Texture FLipping          There are 8 outcomes of this massive selective case, each one chooses the texture and animation depending on which of the 8 directions the player i facing
         self.counter = (self.counter + 1) % 5
-        if self.counter == 0:
+        if self.counter == 0:           #depeding on the direction being moved, negative or positive in the vertical or horizontal axis determinde the textrue that gets displayed for this object durign a running level
             if self.direction_y < 0:
                 if self.direction_x > 0:
 
                     self.image = CharUpRight[self.index]
-                    self.index = (self.index + 1) % len(CharUpRight)
+                    self.index = (self.index + 1) % len(CharUpRight)    #list of elements that are being repeated circularly to give the effect of a complete flip book.
                 elif self.direction_x < 0:
 
                     self.image = CharUpLeft[self.index]
@@ -266,7 +269,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-        # all instances of enemies face different sides at the start
+        # all instances of enemies face different sides at the start, this initialises their direction
         if self.facing == 61:  # Facing up
             self.direction_y = -1
         elif self.facing == 62:  # Facing Down
@@ -277,79 +280,12 @@ class Enemy(pygame.sprite.Sprite):
             self.direction_x = -1
 
 
-    def get_centre(self):
+    def get_centre(self):   #funtion returning the centre coordinates of the object
         centre_x = self.rect.x + (self.width/2)
         centre_y = self.rect.y + (self.height/2)
         return [centre_x, centre_y]
-            # --------------------------------------Useless E3 movement logic using try-except clause with exception classes
 
-
-
-##            for elem in enemyobs_hit_group:
-##                self.rect.x -= self.speed*self.direction_x
-##                self.rect.y -=self.speed*self.direction_y
-##
-##                if self.direction_x ==0:
-##                    self.direction_y = 0
-##                    try:
-##                        self.direction_x = 1
-##                        enemyobs_hit_group= pygame.sprite.spritecollide(self, enemyobs_group, False)
-##                        if len(enemyobs_hit_group)>0:
-##                            raise WrongDirectionError_x
-##                    except WrongDirectionError_x:
-##                        self.direction_x = -1
-##
-##                elif self.direction_y == 0:
-##                    self.direction_x = 0
-##                    try:
-##                        self.direction_y = 1
-##                        enemyobs_hit_group = pygame.sprite.spritecollide(self,enemyobs_group,False)
-##                        if len(enemyobs_hit_group)>0:
-##                            raise WrongDirectionError_y
-##                    except WrongDirectionError_y:
-##                        self.direction_y = -1
-##
-##               elif self.direction_x ==1 and self.direction_y ==0:
-##                    self.direction_y = 0
-##                    try:
-##                        self.direction_x = 1
-##                        enemyobs_hit_group= pygame.sprite.spritecollide(self, enemyobs_group, False)
-##                        if len(enemyobs_hit_group)>0:
-##                            raise WrongDirectionError_x
-##                    except WrongDirectionError_x:
-##                        self.direction_x = -1
-##
-##                elif self.direction_y == 0:
-##                    self.direction_x = 0
-##                    try:
-##                        self.direction_y = 1
-##                        enemyobs_hit_group = pygame.sprite.spritecollide(self,enemyobs_group,False)
-##                        if len(enemyobs_hit_group)>0:
-##                            raise WrongDirectionError_y
-##                    except WrongDirectionError_y:
-##                        self.direction_y = -1
-
-
-##            for item in enemyobs_group:
-##                print(item)
-##                print(item.get_direction_y)
-##                if pygame.sprite.collide_rect(self, item):
-##
-##                    if int(item.get_direction_y) !=0:
-##                        self.direction_y = int(item.get_direction_y)
-##                    elif int(item.get_direction_x) != 0:
-##                        self.direction_x = int(item.get_direction_x)
-
-
-##                if enemyobs_hit_group[0].get_direction_y != 0:
-##                    self.direction_y = int(enemyobs_hit_group[0].get_direction_y)
-##                elif enemyobs_hit_group[0].get_direction_x != 0:
-##                    self.direction_x = int(enemyobs_hit_group[0].get_direction_x)
-
-
-# sub classes of enemies are the different types of enemies
-
-class Enemy1(Enemy):
+class Enemy1(Enemy):        #first type of enemy -static, so no update method
     def __init__(self, x, y, facing, speed):
 
         self.colour = RED
@@ -365,7 +301,7 @@ class Enemy1(Enemy):
             self.image = spritesheet.parse_sprite('enemy1left.png')
 
 
-class Enemy2(Enemy):
+class Enemy2(Enemy):    #second type of enemy
     def __init__(self, x, y, facing, speed):
         self.speed = 0
         self.colour = PINK
@@ -375,7 +311,7 @@ class Enemy2(Enemy):
         super().__init__(x, y, facing, speed)
         self.orientation_selector()
 
-    def orientation_selector(self):
+    def orientation_selector(self): #returns the correct texture depending on which was the object is facing
         if self.facing == 61:
             self.image = spritesheet.parse_sprite('enemy2up.png')
             self.o_list_pointer = 0
@@ -389,10 +325,10 @@ class Enemy2(Enemy):
             self.image = spritesheet.parse_sprite('enemy2left.png')
             self.o_list_pointer = 3
 
-    def update(self):
+    def update(self):       #enemy is stationary but rotates hence the update function is used
 
 
-        self.index = (self.index + 1) % self.speed
+        self.index = (self.index + 1) % self.speed  
         if self.index == 0:
             self.o_list_pointer = (self.o_list_pointer + 1) % len(self.orientation_list)
             self.facing = self.orientation_list[self.o_list_pointer]
@@ -406,7 +342,7 @@ class Enemy3(Enemy):
 
         self.counter = 0
         super().__init__(x, y, facing, speed)
-        self.speed = 1  # speed is now provided as an argument                      #!!!!!!!!!!!!! speed = 1 when movement is needed
+        self.speed = 1 # speed is now provided as an argument  0 speed means no movement                    #!!!!!!!!!!!!! speed = 1 when movement is needed
         self.speedcounter = 0
         self.index = 0
         if facing == 61:
@@ -419,20 +355,22 @@ class Enemy3(Enemy):
             self.image = spritesheet.parse_sprite('enemy3left1.png')
 
     def update(self):
-        #self.speedcounter = (self.speedcounter +1) %2      #halves te speed of the enemies
+        #self.speedcounter = (self.speedcounter +1) %2      #unhashign the code halves te speed of the enemies
+        #movement behaviour, moves in the direction it faces until it faces an enemy obstalce
         if self.direction_x != 0 and self.speedcounter ==0:
             self.rect.x += self.direction_x * self.speed
         if self.direction_y != 0 and self.speedcounter ==0:
             self.rect.y += self.direction_y * self.speed
-
+        #upoin colluision with an enemy obstacle...
         enemyobs_hit_group = pygame.sprite.spritecollide(self, enemyobs_group, False)
-
+        #... it moves back to a state before the collision then changes direction depending on which way the enemy obstacle points towards
+        #elem is the enemy obstacle that the collision is detected with
         for elem in enemyobs_hit_group:
             self.rect.x -= self.speed * self.direction_x
             self.rect.y -= self.speed * self.direction_y
             self.direction_x = elem.get_direction_x()
             self.direction_y = elem.get_direction_y()
-
+        #driection faced is changed hence the variable is updated
         if self.direction_y<0:  #up
             self.facing =61
         elif self.direction_y>0:    #down
@@ -441,12 +379,12 @@ class Enemy3(Enemy):
             self.facing = 63
         elif self.direction_x<0:    #left
             self.facing = 64
-
+        #this is the speed of the animation of the movement of the enemies
         self.counter = (self.counter + 1) % 5
         if self.counter == 0:
             if self.direction_y < 0:
                 self.image = Enemy3Up[self.index]
-                self.index = (self.index + 1) % len(Enemy3Up)
+                self.index = (self.index + 1) % len(Enemy3Up)   #same circular mechanism implemented for the player class
             if self.direction_y > 0:
                 self.image = Enemy3Down[self.index]
                 self.index = (self.index + 1) % len(Enemy3Down)
@@ -457,7 +395,7 @@ class Enemy3(Enemy):
                 self.image = Enemy3Right[self.index]
                 self.index = (self.index + 1) % len(Enemy3Right)
 
-class EnemyVision(Enemy):
+class EnemyVision(Enemy):           #inheritor of enemy group, creates the detection area for enemies
     def __init__(self, x, y,width, height, centre_pos, facing):
         speed = 0
         super().__init__(x, y, facing, speed)
@@ -471,14 +409,14 @@ class EnemyVision(Enemy):
         self.rect.x = x
         self.rect.y = y
 
-    def check_pos_change(self, newcentre_pos):
+    def check_pos_change(self, newcentre_pos):  #method that recognises the enemy the vision area belongs to has changed direction.
         if self.centre_pos[0] == newcentre_pos[0] and self.centre_pos[1] == newcentre_pos[1]:
             return False
         return True
 
 
-    def re_shaper(self, facing, centre_pos): #the dimensions, coordinates and the vision sprite changes
-        self.facing = facing
+    def re_shaper(self, facing, centre_pos): #the dimensions, coordinates and the vision sprite changes, this is reshaped depending on which way the enemy object is
+        self.facing = filter                #for every orientation of the detection area the dimensions are decribed slightly differently, 
         if self.facing == 61:  # Facing up
             width = 50
             height = 100
@@ -509,7 +447,7 @@ class EnemyVision(Enemy):
         self.rect.y = temp_y
 
     def update(self):
-        enemy_hit_group = pygame.sprite.spritecollide(self, enemy_group, False)
+        enemy_hit_group = pygame.sprite.spritecollide(self, enemy_group, False) #update method is for detecting whent he area needs ot be reshaped
 
         for elem in enemy_hit_group:
             #print("live collision")
@@ -519,7 +457,7 @@ class EnemyVision(Enemy):
             elif  self.check_pos_change(elem.get_centre()):  #checks the centre of the vision with the enemy it corresponds to, if different it recalculates the area.
                 self.re_shaper(elem.facing,elem.get_centre())
 
-
+#default purple enemybostacles are redundant as they have no funsitonality.
 class EnemyObstacle(pygame.sprite.Sprite):
     def __init__(self, x, y, facing):
         super().__init__()
@@ -549,14 +487,14 @@ class EnemyObstacle(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def get_direction_x(self):
+    def get_direction_x(self): #getter setter methods for the direction attribute of the enemyobstacles, these are for shaping the movement of enemy type 3
         return self.direction_x
 
     def get_direction_y(self):
         return self.direction_y
 
 
-class Obstacle(pygame.sprite.Sprite):
+class Obstacle(pygame.sprite.Sprite): #the next 3 classes are elementary objects with not much functionality
     def __init__(self, x, y, w, h):
         super().__init__()
         self.colour = AQUA
@@ -596,7 +534,7 @@ class Exit(pygame.sprite.Sprite):
         self.rect.y = y
         self.state = 0  # exit closed by default
 
-    def get_state(self):
+    def get_state(self):    #has state updates as the look and the functionality of a exit differs 
         return self.state
 
     def change_colour(self, colour):
@@ -605,7 +543,7 @@ class Exit(pygame.sprite.Sprite):
 
     def state_change(self, state):
         self.state = int(state)
-        # state = 0 -> exit is closed
+        # state = 0 -> exit is closed   hence level cannot be completed
         # state = 1 -> exit is open
 
 
@@ -623,7 +561,7 @@ class Button():
         self.text = value
 
     def draw(self, screen, outline=None):
-        # Method to draw the button and its text onto the screen
+        # Method to draw the button and its text onto the screen, creates a text box on top of a sprite object 
         if outline:
             pygame.draw.rect(screen, outline, (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
 
@@ -634,14 +572,14 @@ class Button():
             screen.blit(text, (
             self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
-    def isOver(self, pos):
+    def isOver(self, pos):  #decision method that checks whether the cursor is hovering over a button
         if pos[0] > self.x and pos[0] < self.x + self.width:
             if pos[1] > self.y and pos[1] < self.y + self.height:
                 return True
 
         return False
 
-class Background(pygame.sprite.Sprite):
+class Background(pygame.sprite.Sprite): #elementary class that loads the backgroud image.
     def __init__(self, name):
         super().__init__()
 
@@ -655,49 +593,10 @@ class Background(pygame.sprite.Sprite):
 
 
 
-
-
-
-
-
-    ##class Cursor(pygame.sprite.Sprite):
-
-
-##    def __init__(self, colour, x, y):
-##        super().__init__()
-##        self.colour = colour
-##        self.image= pygame.Surface([6,6])
-##        self.image.fill(self.colour)
-##        self.rect = self.image.get_rect()
-##        self.rect.x = x -2
-##        self.rect.y = y -2
-##
-##    def update(self):
-##        mouse_pos = pygame.mouse.get_pos()
-##        self.rect.x = mouse_pos[0] -2
-##        self.rect.y = mouse_pos[1] -2
-##
-##        #cursorbutton_hit_group = pygame.sprite.groupcollide(cursor_group, button_group,False, False)
-##
-
-##-------------Error class and subclasses I am going to be using in a try clause to guess the new available square for the Enemy3s to move
-
-class MovementError(Exception):
-    pass
-
-
-class WrongDirectionError_x(MovementError):
-    pass
-
-
-class WrongDirectionError_y(MovementError):
-    pass
-
-
 ##---------------------------------------------------------------------Functions/Procedures---------------------------------------------------------------------##
 
 
-def set_level_colour(num, colour):
+def set_level_colour(num, colour):      #used to chagne level colour depending on completion
     level_buttons[num].colour = colour
 
 
@@ -705,7 +604,7 @@ def reset_level_colour(num, colour):
     level_buttons[num].colour = colour
 
 
-def level_selector(num):
+def level_selector(num):    #selecting case statement that runs he correct procedure to create the level on the screen
     num = int(num)
     if num == 1:
         level_1(num)
@@ -729,7 +628,7 @@ def level_selector(num):
         level_10(num)
 
 
-def level_clear():  # clears all the sprite groups
+def level_clear():  # clears all the objects in all sprite groups
     all_sprites_group.empty()
     obstacle_group.empty()
     player_group.empty()
@@ -740,7 +639,7 @@ def level_clear():  # clears all the sprite groups
     enemy_vision_group.empty()
 
 
-
+#using the 2d list that is fed in, generates the bostacles by treating every index of the list as a placeholder for an area of 10x10px
 def map_creator(layout):
     for y in range(len(layout)):
         for x in range(len(layout[y])):
@@ -783,7 +682,7 @@ def map_creator(layout):
                     create_enemyobstacle(x * 10, y * 10, int(layout[y][x + 1]))
 
 
-def level_complete(level):
+def level_complete(level): #chagnes the level button colour information upon completion
     level = int(level) - 1
     level_colour_data[level] = [GREEN, AQUA]
 
@@ -795,14 +694,14 @@ def level_1(num):
     leveltext_creator(num)
     create_player(300, 500, 21)
     create_obstacle(380, 0, 60, 180)
-    create_obstacle(380, 435, 60, 357)
+    create_obstacle(380, 435, 60, 285)
     create_key(300, 300)
     create_exit(500, 0, 200, 50)
     create_enemy(400, 400, 1, 61, 0)
     create_enemy(500, 500, 2, 61, 150)
     create_enemy(600, 600, 3, 61, 1)
     create_enemyobstacle(600, 300, 92)  # has direction direction
-    create_enemyobstacle(700, 300, 0)  # normal enemyobstacle object
+    create_enemyobstacle(700, 300, 0)  # normal enemyobstacle object // redundant no longer needed in the game
 
 
 def level_2(num):
@@ -811,7 +710,7 @@ def level_2(num):
     print('level 2 - Test Level')
     create_player(300, 500, 21)
     create_obstacle(100, 100, 100, 200)
-    create_key(300, 300)
+    create_key(550, 50)
     create_exit(500, 0, 200, 50)
     create_enemy(400, 400, 1, 61, 0)
     create_enemy(500, 500, 2, 61, 150)
@@ -871,7 +770,7 @@ def level_10(num):
     print("level 10")
 
 
-###----------------------- Sprite Creation -----------------------------###
+###----------------------- Sprite Creation -----------------------------### procedures that create the sprites with correct attributes in the given locations, interacts with map_creator function
 def create_player(x, y, orientation):
     global player
     if orientation == 21:
@@ -893,7 +792,7 @@ def create_obstacle(x, y, w, h):
     global obstacle
     obstacle = Obstacle(x, y, w, h)
     obstacle_group.add(obstacle)
-    #all_sprites_group.add(obstacle)    #hased to keep them from getting drawn on the screen
+    #all_sprites_group.add(obstacle)    #Obstacles get drawn on screen when this line is not hashed
 
 
 def create_exit(x, y, w, h):
@@ -922,7 +821,7 @@ def create_enemy(x, y, e_type, facing, speed):
 
     enemy_group.add(enemy)
     all_sprites_group.add(enemy)
-    #if e_type == 2 and len(enemy_vision_group)<1:
+    #if e_type == 2 and len(enemy_vision_group)<1:  //was used for a test, might be redundant code
     create_enemy_detection_area(enemy)
 
 def create_enemyobstacle(x, y, facing):
@@ -932,7 +831,7 @@ def create_enemyobstacle(x, y, facing):
     #all_sprites_group.add(enemy_obs)  # ----!!!!!line should be hashed so that the enemyobs are not visible to the user
 
 
-def create_enemy_detection_area(elem):   #elem is the enemy that the area is being created for
+def create_enemy_detection_area(elem):   #elem is the enemy that the area is being created for, every enemy object gets another object that inherits form the enemy class to become its vision area.
     centre_pos = elem.get_centre()
     direction = elem.facing
     if  direction== 61:  # Facing up
@@ -961,8 +860,9 @@ def create_enemy_detection_area(elem):   #elem is the enemy that the area is bei
     #all_sprites_group.add(detarea)     #to draw it behind the enemy
 
 
-###--------------------------------------------Text Boxes/Text Creator Functions----------------------------------###
-def leveltext_creator(num):
+###--------------------------------------------Text Boxes/Text Creator Functions----------------------------------###       //global variables are not needed I kept them in as I didn't want to change them in case it affected some other aspect
+    
+def leveltext_creator(num): #creates the title of the level given the index of the level, and displays on the level screen
     global leveltext
     global leveltextRect
     leveltext = bigfont.render('LEVEL ' + str(num), True, PURPLE)
@@ -970,14 +870,14 @@ def leveltext_creator(num):
     leveltextRect.center = (1140, 60)
 
 
-def pause_menu_title():
+def pause_menu_title():     #creates and displays on the window the title of the pause menu when the pause menu is active
     pausetext = bigfont.render('Pause Menu', True, BLUE)
     pausetextRect = pausetext.get_rect()
     pausetextRect.center = (640, 200)
     return screen.blit(pausetext, pausetextRect)
 
 
-def level_menu_title():
+def level_menu_title(): #diplays title of level menu
     leveltitle = bigfont.render('Level Menu', True, BLUE)
     leveltitleRect = leveltitle.get_rect()
     leveltitleRect.center = (640, 200)
@@ -1003,7 +903,7 @@ def no_key_text():  # text to display when the key is not
     return screen.blit(nokeytext, nokeytextRect)
 
 
-def level_complete_text():
+def level_complete_text():  #prompts the user when a level is completed
     global comptext
     global comptextRect
     comptext = bigfont.render('Level Completed!', True, GREEN)
@@ -1012,7 +912,7 @@ def level_complete_text():
     return screen.blit(comptext, comptextRect)
 
 
-def level_failed_text():
+def level_failed_text():#prompts the user when a level is failed
     global failedtext
     global failedtextRect
     failedtext = bigfont.render('Level Failed!', True, RED)
@@ -1020,6 +920,13 @@ def level_failed_text():
     failedtextRect.center = (640, 300)
     return screen.blit(failedtext, failedtextRect)
 
+def boolean_check():        #testign fucntion used to print all screen variables to see what screen is actually running.
+    print("game_over = ",game_over)
+    print("play_game = ",play_game)
+    print("end_level = ",end_level)
+    print("pause_menu = ",pause_menu)
+    print("level_failed = ",level_failed)
+    print("level_running = ",level_running)
 
 
 
@@ -1042,7 +949,7 @@ exit_group = pygame.sprite.Group()
 
 background_group = pygame.sprite.Group()
 
-##  --  Button/Cursor Sprites and Groups --  ##
+##  --  Button/Cursor Sprites and Groups --  ##         /button class is removed form the game
 ##cursor_group = pygame.sprite.Group()
 ##cursor = Cursor(WHITE, 500, 500)
 ##cursor_group.add(cursor)
@@ -1054,6 +961,7 @@ background_group = pygame.sprite.Group()
 ##cursorbutton_hit_group = pygame.sprite.Group()
 
 ##---------------------------------------------------------------------Variables---------------------------------------------------------------------##
+###--------screen Boolean variables-------##
 game_over = False
 play_game = False
 end_level = False
@@ -1061,6 +969,7 @@ pause_menu = False
 level_failed = False
 level_running = False
 
+### ----------data relating to the level menu and the level buttons===========#
 level_buttons = []
 level_x_places = [190, 390, 590, 790, 990, 190, 390, 590, 790, 990]
 level_y_places = [250, 250, 250, 250, 250, 460, 460, 460, 460, 460]
@@ -1068,7 +977,7 @@ level_numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 level_colour_data = [[ORANGE, YELLOW], [ORANGE, YELLOW], [ORANGE, YELLOW], [ORANGE, YELLOW], [ORANGE, YELLOW],
                      [ORANGE, YELLOW], [ORANGE, YELLOW], [ORANGE, YELLOW], [ORANGE, YELLOW], [ORANGE, YELLOW]]
 
-### -----------------------------------------------------------------Constant Buttons-------------------------------------------------------------------------------###
+### -----------------------------------------------------------------Constant Buttons-------------------------------------------------------------------------------### //button locations are predetermines but theyh are only active/clickable when certain screen boolean variables are active.
 playbutton = Button(RED, 540, 150, 200, 100, PLAYfont, 'PLAY')
 for counter in range(0, 10):
     level_button = Button(level_colour_data[counter][0], level_x_places[counter], level_y_places[counter], 100, 100,
@@ -1084,6 +993,7 @@ endlevel_button = Button(ORANGE, 440, 350, 400, 50, bigfont, 'Return to Menu')
 
 level_failed_button = Button(RED, 440, 350, 400, 50, bigfont, 'Restart')
 
+#--------backgrounds are initiated with the menu background, willl change later depending ont he level that is running.
 Background = Background('graphics/Backgrounds/MenuBackground.png')
 background_group.add(Background)
 
@@ -1093,12 +1003,13 @@ background_group.add(Background)
 ##______________________________________________________________________________________/GAME LOOP\_____________________________________________________________________________________________________##
 while not game_over:
 
-    for event in pygame.event.get():
+    for event in pygame.event.get():        #gets the posiiton of the mouse what will be later used to check with button objects
         mouse_pos = pygame.mouse.get_pos()
 
         if event.type == pygame.QUIT:
             game_over = True
-        elif level_running and len(player_group) > 0:
+        elif level_running and len(player_group) > 0:   #only checked when there are active players in the game or when a level is runnin as it will cause an error otherwise, because player object wouldnt exist.
+            ####=======================================key press logic to determine how the player object should move======================####
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
                     player.go_up()
@@ -1108,8 +1019,6 @@ while not game_over:
                     player.go_right()
                 elif event.key == pygame.K_a:
                     player.go_left()
-
-
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_w:
                     player.stop_y()
@@ -1121,8 +1030,8 @@ while not game_over:
                     player.stop_x()
 
         # If the mouse is clicked over a button the actions are done.
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if pause_button.isOver(mouse_pos):
+        if event.type == pygame.MOUSEBUTTONDOWN:                    #if the mouse is clicked and it is over a certain button, various functions will be run to display other menus or switch screens etc.
+            if pause_button.isOver(mouse_pos):      #isOver funtion is checked with every available button.
                 print("pause button clicked")
 
                 # This alternates the use of the pause menu, (if in the pause menu clicking the pause button takes you out of the pause menu)
@@ -1133,7 +1042,7 @@ while not game_over:
                     pause_menu = True
                     pause_button.set_text("RESUME")
 
-            if pause_menu and pmenu_button.isOver(mouse_pos):
+            if pause_menu and pmenu_button.isOver(mouse_pos):   #there are additional boolean conditions here so that buttons are not always clickable.
                 print("pmenu is clicked")
                 level_running = False
                 level_clear()
@@ -1141,8 +1050,7 @@ while not game_over:
                 pause_menu = False
                 pause_button.set_text("PAUSE")
 
-            if pause_menu and plevel_button.isOver(
-                    mouse_pos):  # checks if we are in pause menu and if the levels button is clicked
+            if pause_menu and plevel_button.isOver(mouse_pos):  # checks if we are in pause menu and if the levels button is clicked
                 print("plevel is clicked")
                 level_clear()
                 level_running = False
@@ -1175,7 +1083,8 @@ while not game_over:
                 play_game = True
 
         # All the colour changes for any button done here
-        if event.type == pygame.MOUSEMOTION:
+        if event.type == pygame.MOUSEMOTION:    #this is the logic sequence that changes the colour of the buttons that indicate clickability, this is not done under MOUSECLICK, becuase clicking causes the button to execute its fucntion
+                                                #hovering causes user-friendly interactions to popup
             # Play
             if not play_game and playbutton.isOver(mouse_pos):
                 playbutton.colour = GREEN
@@ -1211,6 +1120,8 @@ while not game_over:
             else:
                 level_failed_button.colour = RED
 
+            #The level Buttons withinthe Level Menu exist as a list of objects, hence all their displaying and colour chagning logic is done in a for loop
+                #previous functions regarding colour change are useful here.
             for counter in range(0, 10):
                 if play_game and level_buttons[counter].isOver(mouse_pos):
 
@@ -1219,6 +1130,7 @@ while not game_over:
                 elif play_game:
                     set_level_colour(counter,level_colour_data[counter][0])  # -calls procedure that can revert the colour
 
+        #this is the level initiator, gets the index of the clicked level button and launches the correct level using the level_selector procedure
         if play_game and not (pause_menu) and not end_level and event.type == pygame.MOUSEBUTTONDOWN:  # checks if a level is clicked
             for counter in range(0, 10):
                 if level_buttons[counter].isOver(mouse_pos):
@@ -1231,14 +1143,16 @@ while not game_over:
     ##    cursor_group.update()
     ##    cursor_group.draw(screen)
 
+#----------------------menu displays ----------------------------------####
+    #// this is all the logic that determines what needs to be present on the screen.
     # Pause Menu
-    pause_button.draw(screen)
-    if pause_menu:
-        background_group.draw(screen)
+    pause_button.draw(screen)       #pause butotn is always ont he screen, so no condition
+    if pause_menu:              #ther buttons and level object require certain conditions such as the pause menu button need the pause menu to be running
+        background_group.draw(screen)   #menu background is loaded into pause menu to give the illusion of overlay
         if level_running:
             enemy_vision_group.draw(screen)
             all_sprites_group.draw(screen)
-            pause_button.draw(screen)
+            pause_button.draw(screen)               
             try:
                 screen.blit(leveltext, leveltextRect)
             except:
@@ -1253,9 +1167,9 @@ while not game_over:
 
     if not level_running and not pause_menu:  # -whether a level is running
         if not play_game and not end_level:  # -nothing runnnig displays title screen
-            Background.update_image('graphics/Backgrounds/MenuBackground.png')
+            Background.update_image('graphics/Backgrounds/MenuBackground.png')  #menu background is loaded as no level is running
             background_group.draw(screen)
-            playbutton.draw(screen)
+            playbutton.draw(screen)     #correct buttons are drawn onto depending on the current menu
             pause_button.draw(screen)
         if play_game:  # -play pressed into level screen
             Background.update_image('graphics/Backgrounds/MenuBackground.png')
@@ -1266,28 +1180,29 @@ while not game_over:
                 level_buttons[counter].draw(screen)
 
 
-    elif level_running and not pause_menu:
+    elif level_running and not pause_menu:          #level is active and not paused
         play_game = False
         # writes the level on the screen
         background_group.draw(screen)
         pause_button.draw(screen)
         try:
             screen.blit(leveltext, leveltextRect)
-            # checks whether the key has been collected to finish the level
+            # checks whether the key has been collected to finish the level         #this is the level completion logic where it constantly checks properties of the player object for seeing key collection and exit collision
             if player.get_colenemy_state() == True:
                 level_failed = True
             for item in exit_group:
                 if item.get_state() == 1:
-                    player.set_key_state()
-                    key_col_text()
-                    item.change_colour(GREEN)
-                    exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)
-                    for elem in exit_hit_group:
+                    player.set_key_state()          #player properties are updated to show that it has collected the key
+                    key_col_text()                  #key collection is indicated to the player/user
+                    item.change_colour(GREEN)       #colour of the exit is changed to indicate unlock
+                    exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)     #indicates successful exit attempt after key is collected
+                    for elem in exit_hit_group:     
                         level_clear()
-                        end_level = True
+                        end_level = True    
+                        print('Level Completed')
 
         except:
-            NameError
+            NameError                           #prperties of an active level, all dynamic objects are updated, so their flipbook animations can be iterated through if the level i not finished
         enemy_vision_group.draw(screen)
         all_sprites_group.draw(screen)
         player_group.update()
@@ -1295,13 +1210,13 @@ while not game_over:
         enemy_vision_group.update()
 
 
-        if level_failed:
+        if level_failed:                #level failed screen is prompted
             level_failed_text()
             player.set_colenemy_state(False)
             level_clear()
             level_failed_button.draw(screen)
 
-        if end_level:
+        if end_level:           #level ends in completion whent he 
             Background.update_image('graphics/Backgrounds/MenuBackground.png')
             play_game = False
             endlevel_button.draw(screen)
@@ -1309,7 +1224,7 @@ while not game_over:
             level_complete(current_level)
             level_clear()  # clears the all sprites group
 
-    ##---------------------------------------------------------------------Draw here---------------------------------------------------------------------##
+    
 
     # -- flip display to draw the buttons on the screen
 
@@ -1318,6 +1233,6 @@ while not game_over:
     # - The clock ticks over
     clock.tick(60)
 
-# End While - End of game loop
+# End While - End of game loop -- game ends
 
 pygame.quit()

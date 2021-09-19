@@ -3,6 +3,7 @@ import random
 import math
 import json
 from spritesheet import Spritesheet
+from pygame import mixer
 
 # -- Colours
 BLACK = (0, 0, 0)
@@ -167,16 +168,19 @@ class Player(pygame.sprite.Sprite):
 
         # ------ Exit closed check
         exit_hit_group = pygame.sprite.groupcollide(player_group, exit_group, False, False)
+
         for elem in exit_hit_group:
             if not self.get_key_state():
                 no_key_text()
 
-        # ------- Enemy  collision
-            #---Collision witht the enemy object itself
-        #enemybody_hit_group = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
-        #for elem in enemybody_hit_group:
-         #   print('collided with enemy')
-          #  self.colenemy = True
+        # ------- Enemy    collision
+            #---Collision with the enemy detection area
+        enemyarea_hit_group = pygame.sprite.spritecollide(self, enemy_vision_group, False)
+        for elem in enemyarea_hit_group:
+            obstacle_enemyarea_hit_group = pygame.sprite.spritecollide(elem, obstacle_group, False) #to make sure the corrrect detarea was being checked
+            if len(obstacle_enemyarea_hit_group) == 0:       #to make sure no detections through the wall happen
+                print('collided with enemy detection area')
+                self.colenemy = True
 
             #---Proximity Detection
         for elem in enemy_group:
@@ -184,6 +188,7 @@ class Player(pygame.sprite.Sprite):
             player_loc = self.get_centre()
             distance = round(math.sqrt((enemy_loc[0]-player_loc[0])**2+(enemy_loc[1]-player_loc[1])**2))
             if distance<60:
+                print('level failure due to proximity detection')
                 self.colenemy = True
 
             # --- Vision Detection
@@ -281,71 +286,6 @@ class Enemy(pygame.sprite.Sprite):
         return [centre_x, centre_y]
             # --------------------------------------Useless E3 movement logic using try-except clause with exception classes
 
-class EnemyVision(Enemy):
-    def __init__(self, x, y,width, height, centre_pos, facing):
-        speed = 0
-        super().__init__(x, y, facing, speed)
-        self.centre_pos = centre_pos
-        self.colour = LIGHTBLUE
-        self.width = width
-        self.height = height
-        self.image = pygame.Surface([self.width, self.height])
-        self.image.fill(self.colour)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-    def check_pos_change(self, newcentre_pos):
-    
-        if self.centre_pos[0] == newcentre_pos[0] and self.centre_pos[1] == newcentre_pos[1]:
-            return False
-        return True
-
-
-    def re_shaper(self, facing, centre_pos): #the dimensions, coordinates and the vision sprite changes
-        self.facing = facing
-        if self.facing == 61:  # Facing up
-            width = 30
-            height = 60
-            self.rect.x = centre_pos[0] - (width / 2)
-            self.rect.y = centre_pos[1] - height
-        elif self.facing == 62:  # Facing Down
-            width = 30
-            height = 60
-            self.rect.x = centre_pos[0] - (width / 2)
-            self.rect.y = centre_pos[1]
-        elif self.facing == 63:  # facing right
-            width = 60
-            height = 30
-            self.rect. x = centre_pos[0]
-            self.rect.y = centre_pos[1] - (height / 2)
-        elif self.facing == 64:  # facing left
-            width = 60
-            height = 30
-            self.rect.x = centre_pos[0] - width
-            self.rect.y = centre_pos[1] - (height / 2)
-
-
-        self.image = pygame.transform.scale(self.image,(width, height))
-        temp_x = self.rect.x
-        temp_y = self.rect.y
-        self.rect = self.image.get_rect()
-        self.rect.x = temp_x
-        self.rect.y = temp_y
-
-    def update(self):
-
-
-        enemy_hit_group = pygame.sprite.spritecollide(self, enemy_group, False)
-
-
-        for elem in enemy_hit_group:
-            print("live collision")
-            if self.facing != elem.facing:      #if enemy changes direction, then the area must be recalculated
-                print(elem.facing)
-                self.re_shaper(elem.facing, elem.get_centre())
-            elif  self.check_pos_change(elem.get_centre()):  #checks the centre of the vision with the enemy it corresponds to, if different it recalculates the area.
-                self.re_shaper(elem.facing,elem.get_centre())
 
 
 ##            for elem in enemyobs_hit_group:
@@ -453,6 +393,8 @@ class Enemy2(Enemy):
             self.o_list_pointer = 3
 
     def update(self):
+
+
         self.index = (self.index + 1) % self.speed
         if self.index == 0:
             self.o_list_pointer = (self.o_list_pointer + 1) % len(self.orientation_list)
@@ -467,27 +409,23 @@ class Enemy3(Enemy):
 
         self.counter = 0
         super().__init__(x, y, facing, speed)
-        self.speed = 1  # speed is now provided as an argument                      #!!!!!!!!!!!!! speed = 1 when movement is needed
-
+        self.speed = 1 # speed is now provided as an argument  0 speed means no movement                    #!!!!!!!!!!!!! speed = 1 when movement is needed
+        self.speedcounter = 0
         self.index = 0
         if facing == 61:
             self.image = spritesheet.parse_sprite('enemy3up1.png')
-
         elif facing == 62:
             self.image = spritesheet.parse_sprite('enemy3down1.png')
-
         elif facing == 63:
             self.image = spritesheet.parse_sprite('enemy3right1.png')
-
         elif self.facing == 64:
             self.image = spritesheet.parse_sprite('enemy3left1.png')
 
-
     def update(self):
-
-        if self.direction_x != 0:
+        #self.speedcounter = (self.speedcounter +1) %2      #halves te speed of the enemies
+        if self.direction_x != 0 and self.speedcounter ==0:
             self.rect.x += self.direction_x * self.speed
-        if self.direction_y != 0:
+        if self.direction_y != 0 and self.speedcounter ==0:
             self.rect.y += self.direction_y * self.speed
 
         enemyobs_hit_group = pygame.sprite.spritecollide(self, enemyobs_group, False)
@@ -497,6 +435,15 @@ class Enemy3(Enemy):
             self.rect.y -= self.speed * self.direction_y
             self.direction_x = elem.get_direction_x()
             self.direction_y = elem.get_direction_y()
+
+        if self.direction_y<0:  #up
+            self.facing =61
+        elif self.direction_y>0:    #down
+            self.facing =62
+        if self.direction_x>0:  #right
+            self.facing = 63
+        elif self.direction_x<0:    #left
+            self.facing = 64
 
         self.counter = (self.counter + 1) % 5
         if self.counter == 0:
@@ -513,6 +460,67 @@ class Enemy3(Enemy):
                 self.image = Enemy3Right[self.index]
                 self.index = (self.index + 1) % len(Enemy3Right)
 
+class EnemyVision(Enemy):
+    def __init__(self, x, y,width, height, centre_pos, facing):
+        speed = 0
+        super().__init__(x, y, facing, speed)
+        self.centre_pos = centre_pos
+        self.colour = LIGHTBLUE
+        self.width = width
+        self.height = height
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.fill(self.colour)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def check_pos_change(self, newcentre_pos):
+        if self.centre_pos[0] == newcentre_pos[0] and self.centre_pos[1] == newcentre_pos[1]:
+            return False
+        return True
+
+
+    def re_shaper(self, facing, centre_pos): #the dimensions, coordinates and the vision sprite changes
+        self.facing = facing
+        if self.facing == 61:  # Facing up
+            width = 50
+            height = 100
+            self.rect.x = centre_pos[0] - (width / 2)
+            self.rect.y = centre_pos[1] - height
+        elif self.facing == 62:  # Facing Down
+            width = 50
+            height = 100
+            self.rect.x = centre_pos[0] - (width / 2)
+            self.rect.y = centre_pos[1]
+        elif self.facing == 63:  # facing right
+            width = 100
+            height = 50
+            self.rect. x = centre_pos[0]
+            self.rect.y = centre_pos[1] - (height / 2)
+        elif self.facing == 64:  # facing left
+            width = 100
+            height = 50
+            self.rect.x = centre_pos[0] - width
+            self.rect.y = centre_pos[1] - (height / 2)
+
+
+        self.image = pygame.transform.scale(self.image,(width, height))
+        temp_x = self.rect.x
+        temp_y = self.rect.y
+        self.rect = self.image.get_rect()
+        self.rect.x = temp_x
+        self.rect.y = temp_y
+
+    def update(self):
+        enemy_hit_group = pygame.sprite.spritecollide(self, enemy_group, False)
+
+        for elem in enemy_hit_group:
+            #print("live collision")
+            if self.facing != elem.facing:      #if enemy changes direction, then the area must be recalculated
+                #print(elem.facing)
+                self.re_shaper(elem.facing, elem.get_centre())
+            elif  self.check_pos_change(elem.get_centre()):  #checks the centre of the vision with the enemy it corresponds to, if different it recalculates the area.
+                self.re_shaper(elem.facing,elem.get_centre())
 
 
 class EnemyObstacle(pygame.sprite.Sprite):
@@ -732,6 +740,8 @@ def level_clear():  # clears all the sprite groups
     enemyobs_group.empty()
     key_group.empty()
     exit_group.empty()
+    enemy_vision_group.empty()
+
 
 
 def map_creator(layout):
@@ -784,10 +794,11 @@ def level_complete(level):
 ###------------------------------------Level Creation Functions---------------------------------###
 def level_1(num):
     Background.update_image('graphics/Backgrounds/Level1.png')
-    print('level 1 - Test Level')
+    print('level 1 - Tutorial Level')
     leveltext_creator(num)
     create_player(300, 500, 21)
-    create_obstacle(100, 100, 100, 200)
+    create_obstacle(380, 0, 60, 180)
+    create_obstacle(380, 435, 60, 285)
     create_key(300, 300)
     create_exit(500, 0, 200, 50)
     create_enemy(400, 400, 1, 61, 0)
@@ -800,8 +811,16 @@ def level_1(num):
 def level_2(num):
     Background.update_image('graphics/Backgrounds/Level2.png')
     leveltext_creator(num)
-    print('level 2')
-
+    print('level 2 - Test Level')
+    create_player(300, 500, 21)
+    create_obstacle(100, 100, 100, 200)
+    create_key(550, 50)
+    create_exit(500, 0, 200, 50)
+    create_enemy(400, 400, 1, 61, 0)
+    create_enemy(500, 500, 2, 61, 150)
+    create_enemy(600, 600, 3, 61, 1)
+    create_enemyobstacle(600, 300, 92)  # has direction direction
+    create_enemyobstacle(700, 300, 0)  # normal enemyobstacle object
 
 def level_3(num):
     Background.update_image('graphics/Backgrounds/Level3.png')
@@ -877,7 +896,7 @@ def create_obstacle(x, y, w, h):
     global obstacle
     obstacle = Obstacle(x, y, w, h)
     obstacle_group.add(obstacle)
-    #all_sprites_group.add(obstacle)    #hased to keep them from getting drawn on the screen
+    #all_sprites_group.add(obstacle)    #Obstacles get drawn on screen when this line is not hashed
 
 
 def create_exit(x, y, w, h):
@@ -906,8 +925,8 @@ def create_enemy(x, y, e_type, facing, speed):
 
     enemy_group.add(enemy)
     all_sprites_group.add(enemy)
-    if e_type ==2:
-        create_enemy_detection_area(enemy)
+    #if e_type == 2 and len(enemy_vision_group)<1:
+    create_enemy_detection_area(enemy)
 
 def create_enemyobstacle(x, y, facing):
     global enemy_obs
@@ -915,34 +934,34 @@ def create_enemyobstacle(x, y, facing):
     enemyobs_group.add(enemy_obs)
     #all_sprites_group.add(enemy_obs)  # ----!!!!!line should be hashed so that the enemyobs are not visible to the user
 
-# function that calculates the dimensions and the coordinates of a detection rectangle
+
 def create_enemy_detection_area(elem):   #elem is the enemy that the area is being created for
     centre_pos = elem.get_centre()
     direction = elem.facing
     if  direction== 61:  # Facing up
-        width = 30
-        height = 60
+        width = 50
+        height = 100
         x = centre_pos[0] - (width / 2)
         y = centre_pos[1] - height
     elif direction == 62:  # Facing Down
-        width = 30
-        height = 60
+        width = 50
+        height = 100
         x = centre_pos[0] - (width / 2)
         y = centre_pos[1]
     elif direction == 63:  # facing right
-        width = 60
-        height = 30
+        width = 100
+        height = 50
         x = centre_pos[0]
         y = centre_pos[1] - (height / 2)
     elif direction == 64:  # facing left
-        width = 60
-        height = 30
+        width = 100
+        height = 50
         x = centre_pos[0] - width
         y = centre_pos[1] - (height / 2)
 
     detarea = EnemyVision(x, y, width, height,centre_pos,direction)
     enemy_vision_group.add(detarea)
-    all_sprites_group.add(detarea)
+    #all_sprites_group.add(detarea)     #to draw it behind the enemy
 
 
 ###--------------------------------------------Text Boxes/Text Creator Functions----------------------------------###
@@ -973,7 +992,7 @@ def key_col_text():  # text to display when key is collected
     # global keytextRect
     keytext = font.render('Key Collected', True, YELLOW)
     keytextRect = keytext.get_rect()
-    keytextRect.center = (1150, 550)
+    keytextRect.center = (1140, 550)
     return screen.blit(keytext, keytextRect)
 
 
@@ -983,7 +1002,7 @@ def no_key_text():  # text to display when the key is not
     global nokeytextRect
     nokeytext = font.render('Key was not collected', True, RED)
     nokeytextRect = nokeytext.get_rect()
-    nokeytextRect.center = (1150, 550)
+    nokeytextRect.center = (1140, 550)
     return screen.blit(nokeytext, nokeytextRect)
 
 
@@ -1004,6 +1023,13 @@ def level_failed_text():
     failedtextRect.center = (640, 300)
     return screen.blit(failedtext, failedtextRect)
 
+def boolean_check():
+    print("game_over = ",game_over)
+    print("play_game = ",play_game)
+    print("end_level = ",end_level)
+    print("pause_menu = ",pause_menu)
+    print("level_failed = ",level_failed)
+    print("level_running = ",level_running)
 
 
 
@@ -1082,19 +1108,25 @@ while not game_over:
 
         if event.type == pygame.QUIT:
             game_over = True
-        elif level_running and len(player_group) > 0:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
-                    player.go_up()
-                elif event.key == pygame.K_s:
-                    player.go_down()
-                elif event.key == pygame.K_d:
-                    player.go_right()
-                elif event.key == pygame.K_a:
-                    player.go_left()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_c: #checking for active boolean variables
+                boolean_check()
+            if level_running and len(player_group) > 0:
+            
+                if event.key == pygame.K_UP:
+                    player2.go_up()
+                elif event.key == pygame.K_DOWN:
+                    player2.go_down()
+                elif event.key == pygame.K_RIGHT:
+                    player2.go_right()
+                elif event.key == pygame.K_LEFT:
+                    player2.go_left()
+                
 
 
-            elif event.type == pygame.KEYUP:
+
+        elif event.type == pygame.KEYUP:
+            if level_running and len(player_group) > 0:
                 if event.key == pygame.K_w:
                     player.stop_y()
                 elif event.key == pygame.K_s:
@@ -1220,6 +1252,7 @@ while not game_over:
     if pause_menu:
         background_group.draw(screen)
         if level_running:
+            enemy_vision_group.draw(screen)
             all_sprites_group.draw(screen)
             pause_button.draw(screen)
             try:
@@ -1268,10 +1301,11 @@ while not game_over:
                     for elem in exit_hit_group:
                         level_clear()
                         end_level = True
+                        print('Level Completed')
 
         except:
             NameError
-
+        enemy_vision_group.draw(screen)
         all_sprites_group.draw(screen)
         player_group.update()
         enemy_group.update()
@@ -1285,6 +1319,7 @@ while not game_over:
             level_failed_button.draw(screen)
 
         if end_level:
+            
             Background.update_image('graphics/Backgrounds/MenuBackground.png')
             play_game = False
             endlevel_button.draw(screen)
